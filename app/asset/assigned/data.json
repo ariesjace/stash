@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "employeeInfo": "John Doe",
+    "status": "Active",
+    "brand": "Dell",
+    "assetType": "Laptop",
+    "model": "XPS 13",
+    "serialNumber": "SN001",
+    "remarks": "In good condition"
+  },
+  {
+    "id": 2,
+    "employeeInfo": "Jane Smith",
+    "status": "Active",
+    "brand": "Apple",
+    "assetType": "MacBook",
+    "model": "Pro 14",
+    "serialNumber": "SN002",
+    "remarks": "Recently updated"
+  },
+  {
+    "id": 3,
+    "employeeInfo": "Mike Johnson",
+    "status": "Inactive",
+    "brand": "Lenovo",
+    "assetType": "Laptop",
+    "model": "ThinkPad",
+    "serialNumber": "SN003",
+    "remarks": "Awaiting repair"
+  }
+]

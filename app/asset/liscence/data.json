@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "softwareName": "7-Zip 16.04 (x64 edition)",
+    "softwareVersion": "16.04.00.0",
+    "totalPurchased": 5,
+    "managedInstallations": 7,
+    "remaining": -2,
+    "complianceStatus": "Under Licensed",
+    "action": "...",
+    "networkInstallations": 7
+  },
+  {
+    "id": 2,
+    "softwareName": "Adobe Acrobat DC (2015)",
+    "softwareVersion": "15.006.30306",
+    "totalPurchased": 22,
+    "managedInstallations": 1,
+    "remaining": 21,
+    "complianceStatus": "Over Licensed",
+    "action": "...",
+    "networkInstallations": 1
+  },
+  {
+    "id": 3,
+    "softwareName": "Microsoft Office",
+    "softwareVersion": "15.0.4569.1506",
+    "totalPurchased": 25,
+    "managedInstallations": 0,
+    "remaining": 25,
+    "complianceStatus": "Over Licensed",
+    "action": "...",
+    "networkInstallations": 0
+  },
+  {
+    "id": 4,
+    "softwareName": "Microsoft Office 365 - en-us",
+    "softwareVersion": "16.0.4693.1005",
+    "totalPurchased": 20,
+    "managedInstallations": 19,
+    "remaining": 1,
+    "complianceStatus": "Over Licensed",
+    "action": "...",
+    "networkInstallations": 19
+  },
+  {
+    "id": 5,
+    "softwareName": "Web Deployment Tool",
+    "softwareVersion": "1.1.0618",
+    "totalPurchased": 2,
+    "managedInstallations": 1,
+    "remaining": 1,
+    "complianceStatus": "Over Licensed",
+    "action": "...",
+    "networkInstallations": 1
+  },
+  {
+    "id": 6,
+    "softwareName": "Windows 10 Professional Edition (x64)",
+    "softwareVersion": "-",
+    "totalPurchased": 160,
+    "managedInstallations": 160,
+    "remaining": 0,
+    "complianceStatus": "In Compliance",
+    "action": "...",
+    "networkInstallations": 160
+  }
+]

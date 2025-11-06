@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "assetTag": "LT-00123",
+    "assetType": "Laptop",
+    "brand": "Dell",
+    "model": "XPS 13",
+    "serialNumber": "SNXPS001",
+    "purchaseDate": "2023-06-15",
+    "warrantyExpiry": "2026-06-15",
+    "vendor": "Dell Technologies",
+    "warrantyStatus": "Active",
+    "daysRemaining": 590,
+    "remarks": "Under 3-year onsite warranty"
+  },
+  {
+    "id": 2,
+    "assetTag": "MN-00245",
+    "assetType": "Monitor",
+    "brand": "Samsung",
+    "model": "Odyssey G5",
+    "serialNumber": "SMG5002",
+    "purchaseDate": "2022-02-01",
+    "warrantyExpiry": "2025-02-01",
+    "vendor": "Samsung Electronics",
+    "warrantyStatus": "Active",
+    "daysRemaining": 455,
+    "remarks": "Extended service plan"
+  },
+  {
+    "id": 3,
+    "assetTag": "PR-00358",
+    "assetType": "Printer",
+    "brand": "HP",
+    "model": "LaserJet Pro MFP",
+    "serialNumber": "HPLJ003",
+    "purchaseDate": "2021-10-22",
+    "warrantyExpiry": "2023-10-22",
+    "vendor": "HP Inc.",
+    "warrantyStatus": "Expired",
+    "daysRemaining": -380,
+    "remarks": "Out of warranty"
+  },
+  {
+    "id": 4,
+    "assetTag": "PC-00467",
+    "assetType": "Desktop",
+    "brand": "Lenovo",
+    "model": "ThinkCentre M90",
+    "serialNumber": "LNM90467",
+    "purchaseDate": "2024-01-10",
+    "warrantyExpiry": "2027-01-10",
+    "vendor": "Lenovo",
+    "warrantyStatus": "Active",
+    "daysRemaining": 795,
+    "remarks": "5-year extended warranty"
+  },
+  {
+    "id": 5,
+    "assetTag": "KB-00510",
+    "assetType": "Keyboard",
+    "brand": "Logitech",
+    "model": "MX Keys",
+    "serialNumber": "LOG510MX",
+    "purchaseDate": "2021-05-01",
+    "warrantyExpiry": "2023-05-01",
+    "vendor": "Logitech",
+    "warrantyStatus": "Expired",
+    "daysRemaining": -550,
+    "remarks": "Out of warranty"
+  }
+]

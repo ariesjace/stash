@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "assetNumber": "AST001",
+    "status": "Disposed",
+    "brand": "Dell",
+    "assetType": "Laptop",
+    "model": "XPS 13",
+    "processor": "Intel i5",
+    "ram": "8GB",
+    "storage": "256GB SSD",
+    "serialNumber": "SN001",
+    "purchaseDate": "2020-01-15",
+    "assetAge": "4 years",
+    "amount": "$800",
+    "remarks": "End of life"
+  }
+]
