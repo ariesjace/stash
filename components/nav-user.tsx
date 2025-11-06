@@ -62,106 +62,92 @@ export function NavUser({ user }: NavUserProps) {
   return (
     <>
       <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            size="lg"
-            className={`flex items-center justify-between w-full transition-colors
-              hover:bg-transparent
-              data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground
-              ${state === "collapsed" ? "justify-center px-2 py-2" : "gap-2 px-2 py-1.5"}`}
+  <SidebarMenuItem className="relative">
+    <div
+      className={`flex items-center justify-between w-full transition-colors
+        ${state === "collapsed" ? "justify-center px-2 py-2" : "gap-2 px-2 py-1.5"}`}
+    >
+      {state === "collapsed" ? (
+        <Avatar
+          className="h-8 w-8 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => router.push("/profile")}
+        >
+          <AvatarImage src={user.avatar} alt={user.name} />
+          <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+        </Avatar>
+      ) : (
+        <>
+          {/* Avatar + Info */}
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
-            {state === "collapsed" ? (
-              // ✅ Collapsed view: Avatar only
-              <Avatar
-                className="h-8 w-8 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => router.push("/profile")}
-              >
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">
-                  {user.name?.[0] || "?"}
-                </AvatarFallback>
-              </Avatar>
-            ) : (
-              // ✅ Expanded view: separated hover zones
-              <div className="flex items-center justify-between w-full gap-2">
-                {/* Left Section (Avatar + Info) */}
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                >
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            </div>
+          </Link>
+
+          {/* Ellipsis Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 rounded-lg transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                <EllipsisVertical className="size-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="min-w-56 rounded-lg"
+              align="end"
+              sideOffset={4}
+            >
+              <DropdownMenuLabel className="p-0 font-normal">
+                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">
-                      {user.name?.[0] || "?"}
-                    </AvatarFallback>
+                    <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col leading-tight">
+                  <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
                     <span className="truncate text-xs text-muted-foreground">
                       {user.email}
                     </span>
                   </div>
-                </Link>
+                </div>
+              </DropdownMenuLabel>
 
-                {/* Right Section (Ellipsis dropdown with its own hover) */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <div className="p-2 rounded-lg cursor-pointer transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                      <EllipsisVertical className="size-4" />
-                    </div>
-                  </DropdownMenuTrigger>
+              <DropdownMenuSeparator />
 
-                  <DropdownMenuContent
-                    className="min-w-56 rounded-lg"
-                    align="end"
-                    sideOffset={4}
-                  >
-                    <DropdownMenuLabel className="p-0 font-normal">
-                      <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                        <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage src={user.avatar} alt={user.name} />
-                          <AvatarFallback className="rounded-lg">
-                            {user.name?.[0] || "?"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-medium">{user.name}</span>
-                          <span className="truncate text-xs text-muted-foreground">
-                            {user.email}
-                          </span>
-                        </div>
-                      </div>
-                    </DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="flex items-center">
+                    <BadgeCheck className="mr-2 h-4 w-4" />
+                    Account
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>Notifications</DropdownMenuItem>
+              </DropdownMenuGroup>
 
-                    <DropdownMenuSeparator />
+              <DropdownMenuSeparator />
 
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem asChild>
-                        <Link href="/profile" className="flex items-center">
-                          <BadgeCheck className="mr-2 h-4 w-4" />
-                          Account
-                        </Link>
-                      </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLogoutDialogOpen(true)}
+                className="text-red-600 focus:text-red-700 focus:bg-red-50"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      )}
+    </div>
+  </SidebarMenuItem>
+</SidebarMenu>
 
-                      <DropdownMenuItem>Notifications</DropdownMenuItem>
-                    </DropdownMenuGroup>
-
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      onClick={() => setLogoutDialogOpen(true)}
-                      className="text-red-600 focus:text-red-700 focus:bg-red-50"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
 
       {/* ✅ Logout Confirmation Dialog */}
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>

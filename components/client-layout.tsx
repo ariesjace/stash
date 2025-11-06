@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/"
   const [userId, setUserId] = useState<string | null>(null)
-  const isAuthPage = pathname.includes("/auth")
+  const isAuthPage = pathname === "/login" || pathname === "/signup"
   const showBreadcrumbsInstead = pathname.includes("/some-page")
 
   // ✅ Load userId from localStorage after login
@@ -40,7 +40,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
       }
     >
       <AppSidebar userId={userId} variant="inset" />
-      <SidebarInset className="flex flex-col h-screen overflow-hidden">
+      <SidebarInset className="flex flex-col flex-1 overflow-hidden">
         {showBreadcrumbsInstead ? (
           <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4 lg:px-6">
             {/* Sidebar Trigger */}
@@ -61,7 +61,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           <SiteHeader />
         )}
 
-        <div className="flex-1 overflow-auto">{children}</div>
+        <div className="flex-1 h-0 overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   )

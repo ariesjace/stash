@@ -3,7 +3,7 @@ import data from "./data.json"
 import { PageHeader } from "@/components/pageheader"
 
 const columns = [
-  "assetNumber",
+  "assetTag",
   "status",
   "remarks",
   "brand",

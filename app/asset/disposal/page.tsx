@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/pageheader"
 import data from "./data.json"
 
 const columns = [
-  "assetNumber",
+  "assetTag",
   "status",
   "brand",
   "assetType",
@@ -20,7 +20,7 @@ const columns = [
 ]
 
 const columnLabels = {
-  assetNumber: "Asset Number",
+  assetTag: "Asset Tag",
   status: "Status",
   brand: "Brand",
   assetType: "Asset Type",

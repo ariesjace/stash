@@ -37,7 +37,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome Back, Rohan!
+          Welcome Back, Admin!
         </h1>
         <p className="text-muted-foreground mt-1">
           Here’s your total asset overview. Manage hardware, software, and warranties in one place.
@@ -102,10 +102,10 @@ export default function DashboardPage() {
       {/* Four status cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { title: "Ready To Use", count: 22, icon: Monitor },
-          { title: "In Use", count: 52, icon: Laptop },
-          { title: "In Repair", count: 7, icon: Wrench },
-          { title: "Damaged", count: 4, icon: AlertTriangle },
+          { title: "Spare", count: 22, icon: Monitor },
+          { title: "Deployed", count: 52, icon: Laptop },
+          { title: "Maintenance", count: 7, icon: Wrench },
+          { title: "Disposal", count: 4, icon: AlertTriangle },
         ].map((item) => (
           <Card key={item.title} className="p-4">
             <CardHeader className="p-0">
