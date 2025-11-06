@@ -14,10 +14,13 @@ import { ThemeToggle } from "@/components/theme-toggle"
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/"
   const [userId, setUserId] = useState<string | null>(null)
-  const isAuthPage = pathname === "/login" || pathname === "/signup"
-  const showBreadcrumbsInstead = pathname.includes("/some-page")
 
-  // ✅ Load userId from localStorage after login
+  const isAuthPage = pathname === "/login" || pathname === "/signup"
+
+  // ✅ Show breadcrumbs on all pages under `/asset/*`
+  const showBreadcrumbsInstead = pathname.startsWith("/asset/")
+
+  // Load userId from localStorage after login
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId")
     setUserId(storedUserId)

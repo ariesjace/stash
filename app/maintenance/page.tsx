@@ -19,7 +19,7 @@ const columns = [
 ]
 
 const columnLabels = {
-  assetNumber: "Asset Number",
+  assetTag: "Asset Tag",
   status: "Status",
   remarks: "Remarks",
   brand: "Brand",

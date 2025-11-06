@@ -73,20 +73,12 @@ function StatusBadge({ status, className = "" }: { status?: string | null; class
 
   const colorCls = map[s] ?? defaultCls
 
-  const Icon =
-    s === "done" || s === "completed" || s === "active"
-      ? IconCircleCheckFilled
-      : s === "failed" || s === "cancelled" || s === "inactive"
-        ? IconX
-        : IconLoader
-
   return (
     <span
       className={`${colorCls} inline-flex items-center gap-2 px-2 py-0.5 text-xs font-medium rounded-full ${className}`}
       role="status"
       aria-label={`status ${status}`}
     >
-      <Icon className={Icon === IconLoader ? "size-3 animate-spin-slow" : "size-3"} />
       <span className="whitespace-nowrap">{status ?? "-"}</span>
     </span>
   )
