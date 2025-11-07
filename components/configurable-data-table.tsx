@@ -299,18 +299,23 @@ export function ConfigurableDataTable({
 
   /* ---------------------- FETCH DATA ON MOUNT --------------------- */
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/backend/inventory/fetch")
-        if (!res.ok) throw new Error("Failed to fetch data")
-        const json = await res.json()
-        setData(json.data ?? [])
-      } catch (err) {
-        console.error("Error fetching inventory:", err)
-      }
+  const fetchData = async () => {
+    try {
+      const res = await fetch("/api/backend/inventory/fetch")
+      if (!res.ok) throw new Error("Failed to fetch data")
+      const json = await res.json()
+      // Normalize _id to id
+      const normalizedData = (json.data ?? []).map((item: any) => ({
+        ...item,
+        id: item._id || item.id,
+      }))
+      setData(normalizedData)
+    } catch (err) {
+      console.error("Error fetching inventory:", err)
     }
-    fetchData()
-  }, [])
+  }
+  fetchData()
+}, [])
 
   /* ---------------------- TABLE COLUMNS --------------------- */
   const dynamicColumns: ColumnDef<any>[] = React.useMemo(() => {
@@ -435,23 +440,52 @@ export function ConfigurableDataTable({
   }
 
   /* ---------------------- DELETE --------------------- */
-  const handleDeleteSelected = () => {
-    const selectedRowIds = Object.keys(rowSelection).filter((key) =>
-      Boolean((rowSelection as Record<string, boolean>)[key]),
-    )
-    if (selectedRowIds.length === 0) {
-      toast.error("No rows selected")
-      return
-    }
-    setData((prev) => prev.filter((item) => !selectedRowIds.includes(item.id.toString())))
-    setRowSelection({})
-    toast.success(`${selectedRowIds.length} row(s) deleted successfully`)
+  const handleDeleteSelected = async () => {
+  const selectedRowIds = Object.keys(rowSelection).filter(
+    (key) => Boolean((rowSelection as Record<string, boolean>)[key])
+  )
+
+  if (selectedRowIds.length === 0) {
+    toast.error("No rows selected")
+    return
   }
 
-  const selectedRowCount = Object.values(rowSelection).filter(Boolean).length
-  const handleAddNew = (newItem: any) => setData([...data, newItem])
+  try {
+    // Call a single API endpoint with all selected IDs
+    const res = await fetch("/api/backend/inventory/delete", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: selectedRowIds }), // send array of ids
+    })
+
+    if (!res.ok) throw new Error("Failed to delete selected rows")
+
+    // Remove deleted items from local state safely
+    setData((prev) =>
+      prev.filter((item) => !selectedRowIds.includes(String(item.id ?? "")))
+    )
+
+    setRowSelection({})
+    toast.success(`${selectedRowIds.length} row(s) deleted successfully`)
+  } catch (err) {
+    console.error("Delete error:", err)
+    toast.error("Failed to delete selected rows")
+  }
+}
 
   /* ---------------------- RENDER --------------------- */
+  const selectedRowCount = Object.keys(rowSelection).filter((key) => (rowSelection as Record<string, boolean>)[key]).length
+  const handleAddNew = (item?: any) => {
+    // Placeholder implementation: PageButtonGroup may open its own dialog and pass a new item.
+    // If it passes an item, add it to local state; otherwise show a message.
+    if (!item) {
+      toast.error("Add new not implemented")
+      return
+    }
+    setData((prev) => [...prev, item])
+    toast.success("Item added")
+  }
+
   return (
     <div className="w-full flex-col justify-start gap-6 flex">
       <div className="shrink-0">

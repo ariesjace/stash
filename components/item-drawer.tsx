@@ -111,16 +111,9 @@ export function ItemDrawer({ item, fields, children }: ItemDrawerProps) {
             </>
           ) : (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(true)}>
+              <Button variant="default" onClick={() => setIsEditing(true)}>
                 Edit
               </Button>
-              <DeleteConfirmationDialog
-                open={showDeleteDialog}
-                onOpenChange={setShowDeleteDialog}
-                onConfirm={handleDelete}
-                itemName={titleValue}
-                isMultiple={false}
-              />
             </>
           )}
           <DrawerClose asChild>
