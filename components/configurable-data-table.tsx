@@ -260,6 +260,7 @@ export function ConfigurableDataTable({
   columns: string[]
   columnLabels: Record<string, string>
   title: string
+  pageType?: "inventory" | "assigned" | "maintenance" | "disposal" 
   showAddButton?: boolean
   dialogSize?: "sm" | "md" | "lg" | "xl"
 }) {

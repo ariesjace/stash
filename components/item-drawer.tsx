@@ -17,17 +17,18 @@ import {
 } from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 
 interface ItemDrawerProps {
   item: Record<string, any>
   fields: Array<{ key: string; label: string }>
   children?: React.ReactNode
+  onSave?: () => Promise<void> | void
 }
 
-export function ItemDrawer({ item, fields, children }: ItemDrawerProps) {
+export function ItemDrawer({ item, fields, children, onSave }: ItemDrawerProps) {
   const isMobile = useIsMobile()
   const [isEditing, setIsEditing] = React.useState(false)
+  const [loading, setLoading] = React.useState(false)
   const [formData, setFormData] = React.useState(() => {
     const data: Record<string, any> = {}
     fields.forEach((field) => {
@@ -35,23 +36,49 @@ export function ItemDrawer({ item, fields, children }: ItemDrawerProps) {
     })
     return data
   })
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false)
 
-  const handleSave = () => {
-    setIsEditing(false)
-    toast.success("Changes saved successfully")
-  }
+  // Reset form data whenever the drawer opens
+  React.useEffect(() => {
+    if (isOpen) {
+      const data: Record<string, any> = {}
+      fields.forEach((field) => {
+        data[field.key] = item[field.key] || ""
+      })
+      setFormData(data)
+      setIsEditing(false)
+    }
+  }, [isOpen, item, fields])
 
-  const handleDelete = () => {
-    setShowDeleteDialog(false)
-    toast.success("Item deleted successfully")
+  const handleSave = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/backend/inventory/edit?id=${item._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      if (!res.ok) throw new Error("Failed to update asset")
+      toast.success("Changes saved successfully")
+      setIsEditing(false)
+      if (onSave) await onSave()
+    } catch (error) {
+      console.error("Update error:", error)
+      toast.error("Failed to save changes")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const titleValue = item[fields[0]?.key] || "Item"
   const statusValue = item.status || item.Status
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
+    <Drawer
+      direction={isMobile ? "bottom" : "right"}
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <DrawerTrigger asChild>
         {children ? (
           <div>{children}</div>
@@ -90,7 +117,9 @@ export function ItemDrawer({ item, fields, children }: ItemDrawerProps) {
               {fields.map((field, index) => (
                 <div
                   key={field.key}
-                  className={`flex justify-between items-center py-2 ${index < fields.length - 1 ? "border-b" : ""}`}
+                  className={`flex justify-between items-center py-2 ${
+                    index < fields.length - 1 ? "border-b" : ""
+                  }`}
                 >
                   <span className="text-muted-foreground">{field.label}</span>
                   <span className="font-medium">{formData[field.key] || "-"}</span>
@@ -102,22 +131,22 @@ export function ItemDrawer({ item, fields, children }: ItemDrawerProps) {
         <DrawerFooter className="gap-2">
           {isEditing ? (
             <>
-              <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
-                Save
+              <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700" disabled={loading}>
+                {loading ? "Saving..." : "Save"}
               </Button>
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
+              <Button variant="outline" onClick={() => setIsEditing(false)} disabled={loading}>
                 Cancel
               </Button>
             </>
           ) : (
-            <>
-              <Button variant="default" onClick={() => setIsEditing(true)}>
-                Edit
-              </Button>
-            </>
+            <Button variant="default" onClick={() => setIsEditing(true)}>
+              Edit
+            </Button>
           )}
           <DrawerClose asChild>
-            <Button variant="outline">Close</Button>
+            <Button variant="outline" disabled={loading}>
+              Close
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
