@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -113,14 +114,25 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       )}
 
       {/* Login Card */}
-      <Card className="overflow-hidden">
+     <Card className="overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-4">
+            {/* Logo */}
+            <div className="flex justify-center mb-6">
+              <Image
+                width={100}
+                height={100}
+                src="/stash-logo.png"
+                alt="Stash Logo"
+                className="object-contain"
+              />
+            </div>
+
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center mb-4">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
                 <p className="text-muted-foreground">
-                  Login to your IT Portal account
+                  Login to your Stash Account
                 </p>
               </div>
 
@@ -138,7 +150,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a href="#" className="ml-auto text-sm underline-offset-2 hover:underline">
+                  <a
+                    href="#"
+                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                  >
                     Forgot your password?
                   </a>
                 </div>
@@ -167,9 +182,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
           {/* Right-side Image */}
           <div className="bg-muted relative hidden md:block">
             <img
-              src="/reactmode.jpg"
+              src="/illustration.jpg"
               alt="Login Background"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.3] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover dark:brightness"
             />
           </div>
         </CardContent>

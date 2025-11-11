@@ -15,7 +15,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname() || "/"
   const [userId, setUserId] = useState<string | null>(null)
 
-  const isAuthPage = pathname === "/login" || pathname === "/signup"
+  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/otp" 
 
   // ✅ Show breadcrumbs on all pages under `/asset/*`
   const showBreadcrumbsInstead = pathname.startsWith("/asset/")
