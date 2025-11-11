@@ -41,9 +41,11 @@ interface AddItemDialogProps {
   fields: FieldConfig[]
   showButton?: boolean
   dialogSize?: "sm" | "md" | "lg" | "xl"
-  userDetails: any // added to support createdBy
-  fetchPosts?: (refId: string) => void // optional refresh function
+  userDetails: any
+  fetchPosts?: (refId: string) => void
+  onAddNew?: (data: Record<string, any>) => void   // <-- add this
 }
+
 
 export function AddItemDialog({
   open,

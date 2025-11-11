@@ -34,6 +34,7 @@ interface PageButtonGroupProps {
   showAddButton?: boolean
   columnLabels: Record<string, string>
   dialogSize?: "sm" | "md" | "lg" | "xl"
+  userDetails?: Record<string, any> // <- added optional prop
 }
 
 export function PageButtonGroup({
@@ -51,6 +52,7 @@ export function PageButtonGroup({
   showAddButton = true,
   columnLabels,
   dialogSize = "md",
+  userDetails = {}, // <- default empty object
 }: PageButtonGroupProps) {
   const [showAddDialog, setShowAddDialog] = React.useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
@@ -95,12 +97,13 @@ export function PageButtonGroup({
               fields={fields}
               showButton={true}
               dialogSize={dialogSize}
+              userDetails={userDetails} // <- passed correctly
             />
           )}
 
           {/* Search Input */}
           <div className="relative">
-            <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-muted-foreground" />
+            <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               className="pl-9 w-full md:w-48"
               value={searchTerm}
@@ -111,7 +114,7 @@ export function PageButtonGroup({
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-                <IconCalendar className="size-4" />
+                <IconCalendar className="h-4 w-4" />
                 {calendarRange?.from && calendarRange?.to
                   ? `${calendarRange.from.toLocaleDateString()} - ${calendarRange.to.toLocaleDateString()}`
                   : "Select Date Range"}
@@ -129,7 +132,7 @@ export function PageButtonGroup({
 
           {/* Export Button */}
           <Button variant="outline" size="sm" className="gap-2 bg-transparent" onClick={handleExportToExcel}>
-            <IconDownload className="size-4" />
+            <IconDownload className="h-4 w-4" />
             Export
           </Button>
 
@@ -155,7 +158,7 @@ export function PageButtonGroup({
             className="gap-2"
             onClick={() => onViewModeChange("table")}
           >
-            <IconLayoutList className="size-4" />
+            <IconLayoutList className="h-4 w-4" />
             <span className="hidden sm:inline">Table</span>
           </Button>
           <Button
@@ -164,7 +167,7 @@ export function PageButtonGroup({
             className="gap-2"
             onClick={() => onViewModeChange("card")}
           >
-            <IconLayoutGrid className="size-4" />
+            <IconLayoutGrid className="h-4 w-4" />
             <span className="hidden sm:inline">Card</span>
           </Button>
         </div>
