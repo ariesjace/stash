@@ -40,10 +40,11 @@ interface AddItemDialogProps {
   filteredData: any[]
   fields: FieldConfig[]
   showButton?: boolean
+  pageType?: "inventory" | "assigned" | "maintenance" | "disposal"
   dialogSize?: "sm" | "md" | "lg" | "xl"
   userDetails: any
   fetchPosts?: (refId: string) => void
-  onAddNew?: (data: Record<string, any>) => void   // <-- add this
+  onAddNew?: (data: Record<string, any>) => void
 }
 
 
@@ -53,6 +54,7 @@ export function AddItemDialog({
   filteredData,
   fields,
   showButton = true,
+  pageType,
   dialogSize = "xl",
   userDetails,
   fetchPosts,
@@ -71,9 +73,18 @@ export function AddItemDialog({
   )
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
 
-  // Dropdown options
+  const getStatusOptions = () => {
+    const statusByPage: Record<string, string[]> = {
+      inventory: ["spare", "deployed", "lend", "missing", "defective", "dispose"],
+      disposal: ["dispose"],
+      maintenance: ["defective"],
+      assigned: ["deployed", "lend"],
+    };
+    return pageType ? statusByPage[pageType] || [] : ["deployed", "spare", "lend", "defective", "dispose", "missing"];
+  };
+
   const options = {
-    status: ["deployed", "spare", "lend", "defective", "dispose", "missing"],
+    status: getStatusOptions(),
     location: [
       "primex",
       "j&l",
@@ -97,20 +108,42 @@ export function AddItemDialog({
     ],
   }
 
-  // Auto-generate Asset Tag when Asset Type changes
-  const handleAssetTypeChange = (value: string) => {
-    const prefix = value.toLowerCase().slice(0, 3)
-    const year = new Date().getFullYear()
-    const randomNum = Math.floor(1 + Math.random() * 999)
-      .toString()
-      .padStart(3, "0")
-    const assetTag = `${prefix}-${year}-${randomNum}`
-
+  const handleAssetTypeChange = async (value: string) => {
     setFormData((prev) => ({
       ...prev,
       assetType: value,
-      assetTag,
-    }))
+      assetTag: "Generating...",
+    }));
+
+    try {
+      const res = await fetch("/api/backend/inventory/next-asset-tag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assetType: value }),
+      });
+
+      const result = await res.json();
+
+      if (res.ok && result.assetTag) {
+        setFormData((prev) => ({
+          ...prev,
+          assetTag: result.assetTag,
+        }));
+      } else {
+        toast.error("Failed to generate asset tag");
+        setFormData((prev) => ({
+          ...prev,
+          assetTag: "",
+        }));
+      }
+    } catch (error) {
+      console.error("Error generating asset tag:", error);
+      toast.error("Error generating asset tag");
+      setFormData((prev) => ({
+        ...prev,
+        assetTag: "",
+      }));
+    }
   }
 
   // Compute asset age

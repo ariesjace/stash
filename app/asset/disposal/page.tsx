@@ -46,6 +46,7 @@ export default function DisposalPage() {
             columns={columns}
             columnLabels={columnLabels}
             title="Disposal"
+            pageType="disposal"
             showAddButton={false}
           />
         </div>

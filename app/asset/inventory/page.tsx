@@ -76,7 +76,8 @@ export default function InventoryPage() {
         columns={columns}
         columnLabels={columnLabels}
         title="Inventory"
-        showAddButton={false} // optional
+        pageType="inventory"
+        showAddButton={true}
       />
     </div>
   )

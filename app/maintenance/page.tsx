@@ -48,6 +48,8 @@ export default function MaintenancePage() {
             columns={columns}
             columnLabels={columnLabels}
             title="Maintenance"
+            pageType="maintenance"
+            showAddButton={true}
           />
         </div>
       </div>

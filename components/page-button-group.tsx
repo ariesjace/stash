@@ -32,9 +32,10 @@ interface PageButtonGroupProps {
   filteredData: any[]
   fields: FieldConfig[]
   showAddButton?: boolean
+  pageType?: "inventory" | "assigned" | "maintenance" | "disposal"
   columnLabels: Record<string, string>
   dialogSize?: "sm" | "md" | "lg" | "xl"
-  userDetails?: Record<string, any> // <- added optional prop
+  userDetails?: Record<string, any>
 }
 
 export function PageButtonGroup({
@@ -50,9 +51,10 @@ export function PageButtonGroup({
   filteredData,
   fields,
   showAddButton = true,
+  pageType,
   columnLabels,
   dialogSize = "md",
-  userDetails = {}, // <- default empty object
+  userDetails = {},
 }: PageButtonGroupProps) {
   const [showAddDialog, setShowAddDialog] = React.useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
@@ -96,8 +98,9 @@ export function PageButtonGroup({
               filteredData={filteredData}
               fields={fields}
               showButton={true}
+              pageType={pageType}
               dialogSize={dialogSize}
-              userDetails={userDetails} // <- passed correctly
+              userDetails={userDetails}
             />
           )}
 

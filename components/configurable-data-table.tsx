@@ -84,6 +84,26 @@ function StatusBadge({ status, className = "" }: { status?: string | null; class
   )
 }
 
+function filterDataByPageType(data: any[], pageType?: string): any[] {
+  if (!pageType || !Array.isArray(data)) return data
+
+  const statusMap: Record<string, string[]> = {
+    // inventory: no filter - shows all statuses
+    disposal: ["dispose"],
+    maintenance: ["defective"],
+    assigned: ["deployed", "lend"],
+    inventory: ["deployed", "lend", "spare", "missing"]
+  }
+
+  const allowedStatuses = statusMap[pageType.toLowerCase()]
+  if (!allowedStatuses) return data // includes "inventory" which has no filter
+
+  return data.filter((item) => {
+    const status = String(item.status || "").toLowerCase().trim()
+    return allowedStatuses.includes(status)
+  })
+}
+
 /* ---------------------------- DRAG HANDLE ---------------------------- */
 function DragHandle({ id }: { id: number }) {
   const { attributes, listeners } = useSortable({
@@ -253,6 +273,7 @@ export function ConfigurableDataTable({
   columns: columnKeys,
   columnLabels,
   title,
+  pageType,
   showAddButton = true,
   dialogSize = "md",
 }: {
@@ -377,14 +398,19 @@ export function ConfigurableDataTable({
 
   const filteredData = React.useMemo(() => {
     if (!Array.isArray(data)) return []
-    return data.filter((item) =>
+    
+    // First filter by page type (status-based filtering)
+    const statusFiltered = filterDataByPageType(data, pageType)
+    
+    // Then apply search filter
+    return statusFiltered.filter((item) =>
       columnKeys.some((key) =>
         String(item[key] ?? "")
           .toLowerCase()
           .includes(searchTerm.toLowerCase()),
       ),
     )
-  }, [data, searchTerm, columnKeys])
+  }, [data, searchTerm, columnKeys, pageType])
 
   const table = useReactTable({
     data: filteredData,
@@ -502,7 +528,8 @@ export function ConfigurableDataTable({
           onAddNew={handleAddNew}
           filteredData={filteredData}
           fields={addDialogFields}
-          showAddButton={true}
+          showAddButton={showAddButton}
+          pageType={pageType}
           columnLabels={columnLabels}
           dialogSize={dialogSize}
         />

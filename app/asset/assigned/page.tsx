@@ -27,6 +27,8 @@ export default function AssignedAssetsPage() {
             columns={columns}
             columnLabels={columnLabels}
             title="Assigned Assets"
+            pageType="assigned"
+            showAddButton={true}
           />
         </div>
       </div>
