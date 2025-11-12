@@ -1,3 +1,4 @@
+import * as React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -34,7 +35,7 @@ export default function ProfilePage() {
                 <div className="text-center space-y-1">
                   <h3 className="text-xl font-semibold">John Doe</h3>
                   <p className="text-sm text-muted-foreground">john.doe@company.com</p>
-                  <Badge variant="secondary" className="mt-2">Administrator</Badge>
+                  <Badge variant="secondary" className="mt-2">Admin</Badge>
                 </div>
                 <Button variant="outline" className="w-full">Change Avatar</Button>
               </CardContent>
@@ -47,7 +48,7 @@ export default function ProfilePage() {
                 <CardDescription>Update your personal details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
                     <Input id="firstName" placeholder="John" defaultValue="John" />
@@ -61,11 +62,6 @@ export default function ProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
                   <Input id="email" type="email" placeholder="john.doe@company.com" defaultValue="john.doe@company.com" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="department">Role</Label>
-                  <Input id="department" placeholder="IT Department" defaultValue="IT Department" />
                 </div>
 
                 <div className="flex justify-end gap-2">

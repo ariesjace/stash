@@ -1,8 +1,20 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useUser } from "@/contexts/UserContext"
 
 export default function AssetManagementPage() {
+  const { userId } = useUser() // get userId from context
+
+  // Function to append userId to URLs
+  const appendUserId = (url: string) => {
+    if (!userId) return url
+    const separator = url.includes("?") ? "&" : "?"
+    return `${url}${separator}userId=${encodeURIComponent(userId)}`
+  }
+
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
@@ -15,16 +27,13 @@ export default function AssetManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle>Inventory</CardTitle>
-                <CardDescription>
-                  Manage asset inventory
-                </CardDescription>
+                <CardDescription>Manage asset inventory</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/asset/inventory">
+                <Link href={appendUserId("/asset/inventory")}>
                   <Button className="w-full">View Inventory</Button>
                 </Link>
               </CardContent>
@@ -33,12 +42,10 @@ export default function AssetManagementPage() {
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle>Assigned Assets</CardTitle>
-                <CardDescription>
-                  View and manage assigned assets
-                </CardDescription>
+                <CardDescription>View and manage assigned assets</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/asset/assigned">
+                <Link href={appendUserId("/asset/assigned")}>
                   <Button className="w-full">View Assets</Button>
                 </Link>
               </CardContent>
@@ -47,12 +54,10 @@ export default function AssetManagementPage() {
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle>Disposal</CardTitle>
-                <CardDescription>
-                  Track disposed assets
-                </CardDescription>
+                <CardDescription>Track disposed assets</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/asset/disposal">
+                <Link href={appendUserId("/asset/disposal")}>
                   <Button className="w-full">View Disposal</Button>
                 </Link>
               </CardContent>
@@ -61,12 +66,10 @@ export default function AssetManagementPage() {
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle>Warranty Management</CardTitle>
-                <CardDescription>
-                  Manage asset warranties
-                </CardDescription>
+                <CardDescription>Manage asset warranties</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/asset/disposal">
+                <Link href={appendUserId("/asset/warranty")}>
                   <Button className="w-full">View Warranty</Button>
                 </Link>
               </CardContent>
@@ -74,14 +77,12 @@ export default function AssetManagementPage() {
 
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Liscence Management</CardTitle>
-                <CardDescription>
-                  Managge your software liscences
-                </CardDescription>
+                <CardTitle>License Management</CardTitle>
+                <CardDescription>Manage your software licenses</CardDescription>
               </CardHeader>
               <CardContent>
-                <Link href="/asset/disposal">
-                  <Button className="w-full">View Liscence</Button>
+                <Link href={appendUserId("/asset/liscence")}>
+                  <Button className="w-full">View License</Button>
                 </Link>
               </CardContent>
             </Card>

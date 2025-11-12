@@ -99,8 +99,15 @@ export default function DashboardPage() {
               {metrics.map((metric, idx) => (
                 <Card key={idx} className="bg-card border-border">
                   <CardContent className="p-6">
-                    <p className="text-sm text-muted-foreground">{metric.label}</p>
-                    <p className="text-4xl font-bold mt-3">{metric.value}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm text-muted-foreground">{metric.label}</p>
+                        <p className="text-4xl font-bold mt-3">{metric.value}</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-md bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
+                        <div className="w-6 h-6 rounded bg-muted-foreground/20" />
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -129,6 +136,10 @@ export default function DashboardPage() {
                       >
                         {/* Left Section - Asset Info */}
                         <div className="flex items-start gap-3 flex-1 min-w-0">
+                          {/* Image Placeholder */}
+                          <div className="w-12 h-12 rounded-md bg-muted/50 border border-border/30 flex items-center justify-center shrink-0">
+                            <div className="w-6 h-6 rounded bg-muted-foreground/20" />
+                          </div>
 
                           {/* Asset Details */}
                           <div className="flex-1 min-w-0">
@@ -255,60 +266,6 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Recently Assigned */}
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-xl">Recently Assigned Assets</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border text-muted-foreground">
-                        <th className="text-left pb-4 font-semibold">Asset Name</th>
-                        <th className="text-left pb-4 font-semibold">Serial Number</th>
-                        <th className="text-left pb-4 font-semibold">Assigned To</th>
-                        <th className="text-left pb-4 font-semibold">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        {
-                          name: "HP ProBook 450 G10",
-                          serial: "SN-HPX12345",
-                          assigned: "Andrea Cruz",
-                          status: "Active",
-                        },
-                        {
-                          name: "Dell OptiPlex 7090",
-                          serial: "SN-DLL90876",
-                          assigned: "John Ramos",
-                          status: "Active",
-                        },
-                        {
-                          name: "AOC 24B1XHS Monitor",
-                          serial: "SN-AOC55421",
-                          assigned: "Kevin Tan",
-                          status: "Active",
-                        },
-                      ].map((item) => (
-                        <tr key={item.serial} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                          <td className="py-3">{item.name}</td>
-                          <td className="py-3 text-muted-foreground">{item.serial}</td>
-                          <td className="py-3">{item.assigned}</td>
-                          <td className="py-3">
-                            <span className="px-2 py-1 rounded-full bg-green-400/20 text-green-400 text-xs">
-                              {item.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

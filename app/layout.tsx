@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { UserProvider } from "@/contexts/UserContext"
 
 // Import ClientLayout (needs to be client component)
 import ClientLayout from "@/components/client-layout"
@@ -34,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           disableTransitionOnChange
         >
           {/* Wrap children with ClientLayout */}
-          <ClientLayout>{children}</ClientLayout>
+          <UserProvider><ClientLayout>{children}</ClientLayout></UserProvider>
 
           <Toaster richColors />
         </ThemeProvider>

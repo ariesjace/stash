@@ -46,107 +46,111 @@ interface NavUserProps {
     name: string
     email: string
     avatar: string
-  }
+  };
+  userId: string;
 }
 
-export function NavUser({ user }: NavUserProps) {
+export function NavUser({ user, userId, }: NavUserProps) {
   const router = useRouter()
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const { state } = useSidebar()
 
   const handleLogout = () => {
-    router.push("/login")
+    // Clear user auth info from storage
+    localStorage.removeItem("userId");
+    // Redirect to login page
+    router.replace("/login");
     setLogoutDialogOpen(false)
-  }
+  };
 
   return (
     <>
       <SidebarMenu>
-  <SidebarMenuItem className="relative">
-    <div
-      className={`flex items-center justify-between w-full transition-colors
+        <SidebarMenuItem className="relative">
+          <div
+            className={`flex items-center justify-between w-full transition-colors
         ${state === "collapsed" ? "justify-center px-2 py-2" : "gap-2 px-2 py-1.5"}`}
-    >
-      {state === "collapsed" ? (
-        <Avatar
-          className="h-8 w-8 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => router.push("/profile")}
-        >
-          <AvatarImage src={user.avatar} alt={user.name} />
-          <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
-        </Avatar>
-      ) : (
-        <>
-          {/* Avatar + Info */}
-          <Link
-            href="/profile"
-            className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           >
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-            </div>
-          </Link>
-
-          {/* Ellipsis Menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 rounded-lg transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                <EllipsisVertical className="size-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="min-w-56 rounded-lg"
-              align="end"
-              sideOffset={4}
-            >
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            {state === "collapsed" ? (
+              <Avatar
+                className="h-8 w-8 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => router.push("/profile")}
+              >
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+              </Avatar>
+            ) : (
+              <>
+                {/* Avatar + Info */}
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user.avatar} alt={user.name} />
                     <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
+                  <div className="flex flex-col leading-tight">
                     <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {user.email}
-                    </span>
+                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
                   </div>
-                </div>
-              </DropdownMenuLabel>
+                </Link>
 
-              <DropdownMenuSeparator />
+                {/* Ellipsis Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="p-2 rounded-lg transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                      <EllipsisVertical className="size-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className="min-w-56 rounded-lg"
+                    align="end"
+                    sideOffset={4}
+                  >
+                    <DropdownMenuLabel className="p-0 font-normal">
+                      <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                          <AvatarImage src={user.avatar} alt={user.name} />
+                          <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+                        </Avatar>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                          <span className="truncate font-medium">{user.name}</span>
+                          <span className="truncate text-xs text-muted-foreground">
+                            {user.email}
+                          </span>
+                        </div>
+                      </div>
+                    </DropdownMenuLabel>
 
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center">
-                    <BadgeCheck className="mr-2 h-4 w-4" />
-                    Account
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>Notifications</DropdownMenuItem>
-              </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
 
-              <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile" className="flex items-center">
+                          <BadgeCheck className="mr-2 h-4 w-4" />
+                          Account
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>Notifications</DropdownMenuItem>
+                    </DropdownMenuGroup>
 
-              <DropdownMenuItem
-                onClick={() => setLogoutDialogOpen(true)}
-                className="text-red-600 focus:text-red-700 focus:bg-red-50"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </>
-      )}
-    </div>
-  </SidebarMenuItem>
-</SidebarMenu>
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={() => setLogoutDialogOpen(true)}
+                      className="text-red-600 focus:text-red-700 focus:bg-red-50"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Log out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
+        </SidebarMenuItem>
+      </SidebarMenu>
 
 
       {/* ✅ Logout Confirmation Dialog */}

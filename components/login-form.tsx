@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
+import { useUser } from "@/contexts/UserContext";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState("")
@@ -25,6 +26,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const [progress, setProgress] = useState(0)
   const [showOverlay, setShowOverlay] = useState(false)
   const router = useRouter()
+  const { setUserId } = useUser();
 
   // Progress animation overlay
   useEffect(() => {
@@ -36,70 +38,70 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       setProgress(value)
       if (value >= 100) {
         clearInterval(interval)
-        toast.success("Redirecting to dashboard...")
-        setTimeout(() => {
-          router.push("/dashboard")
-        }, 700)
       }
     }, 150)
 
     return () => clearInterval(interval)
-  }, [showOverlay, router])
+  }, [showOverlay])
 
   const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault()
-  
-      if (!email || !password) {
-        toast.error("All fields are required!")
-        return
-      }
-  
-      setLoading(true)
-      try {
-        const response = await fetch("/api/login", {
+    e.preventDefault()
+
+    if (!email || !password) {
+      toast.error("All fields are required!")
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Email: email, Password: password }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.userId) {
+        toast.success("Login successful!")
+
+        // ✅ Save user info
+        localStorage.setItem("userId", result.userId)
+        if (result.token) localStorage.setItem("token", result.token)
+        localStorage.setItem("userEmail", email)
+
+        // ✅ Update context immediately
+        setUserId(result.userId)
+
+        // ✅ Start progress overlay
+        setShowOverlay(true)
+
+        // ✅ Non-blocking activity log
+        fetch("/api/log-activity", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Email: email, Password: password }),
-        })
-  
-        const result = await response.json()
-  
-        if (response.ok) {
-          toast.success("Login successful!")
-  
-          // ✅ Store the user ID and token (if provided)
-          if (result.userId) {
-            localStorage.setItem("userId", result.userId)
-          }
-          if (result.token) {
-            localStorage.setItem("token", result.token)
-          }
-  
-          // ✅ Optionally store email for quick display
-          localStorage.setItem("userEmail", email)
-  
-          setShowOverlay(true)
-  
-          // ✅ Log activity (non-blocking)
-          fetch("/api/log-activity", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email,
-              status: "login",
-              timestamp: new Date().toISOString(),
-            }),
-          }).catch(console.error)
-        } else {
-          toast.error(result.message || "Login failed!")
-        }
-      } catch (error) {
-        console.error("Login error:", error)
-        toast.error("An error occurred while logging in!")
-      } finally {
-        setLoading(false)
+          body: JSON.stringify({
+            email,
+            status: "login",
+            timestamp: new Date().toISOString(),
+          }),
+        }).catch(console.error)
+
+        // ✅ Redirect after short delay
+        setTimeout(() => {
+          router.push(`/dashboard?id=${encodeURIComponent(result.userId)}`)
+        }, 2000)
+      } else {
+        toast.error(result.message || "Invalid credentials.")
       }
+    } catch (error) {
+      console.error("Login error:", error)
+      toast.error("An error occurred while logging in.")
+    } finally {
+      setLoading(false)
     }
+  }
 
   return (
     <div className={cn("relative flex flex-col gap-6", className)} {...props}>
@@ -114,7 +116,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       )}
 
       {/* Login Card */}
-     <Card className="overflow-hidden">
+      <Card className="overflow-hidden">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-4">
             {/* Logo */}

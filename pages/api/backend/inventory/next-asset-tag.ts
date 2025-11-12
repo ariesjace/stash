@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/MongoDB";
-import { ObjectId } from "mongodb";
 
 interface AssetTagCounter {
   _id: string;

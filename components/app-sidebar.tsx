@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react";
 import Image from "next/image"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "next/navigation"
 import {
   FolderKanban,
@@ -24,13 +26,15 @@ import {
 } from "@/components/ui/sidebar"
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  userId: string | null
+  userId?: string;
+
 }
 
 export function AppSidebar({ userId, ...props }: AppSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const { state } = useSidebar()
+  const searchParams = useSearchParams();
 
   const [userDetails, setUserDetails] = React.useState({
     UserId: "",
@@ -41,14 +45,11 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
     ReferenceID: "",
   })
 
-  // ✅ Fetch user details
   React.useEffect(() => {
-    if (!userId) return
-    const fetchUserDetails = async () => {
-      try {
-        const res = await fetch(`/api/user?id=${encodeURIComponent(userId)}`)
-        if (!res.ok) throw new Error("Failed to fetch user details")
-        const data = await res.json()
+    if (!userId) return;
+    fetch(`/api/user?id=${encodeURIComponent(userId)}`)
+      .then((res) => res.json())
+      .then((data) => {
         setUserDetails({
           UserId: data._id || userId,
           Firstname: data.Firstname || "Leroux",
@@ -57,17 +58,15 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
           profilePicture: data.profilePicture || "/avatars/default.jpg",
           ReferenceID: data.ReferenceID || "N/A",
         })
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    fetchUserDetails()
-  }, [userId])
+      })
+      .catch((err) => console.error(err));
+  }, [userId]);
 
   // ✅ Append userId to URLs
   const appendUserId = (url: string) => {
     if (!userId) return url
-    return `${url}?userId=${userId}`
+    const separator = url.includes("?") ? "&" : "?"
+    return `${url}${separator}userId=${encodeURIComponent(userId)}`
   }
 
   // ✅ Navigation items
@@ -126,11 +125,10 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
       <SidebarHeader className="pb-2"> {/* reduced bottom padding */}
         <Link
           href={appendUserId("/dashboard")}
-          className={`flex items-center transition-all duration-200 ${
-            state === "collapsed"
-              ? "justify-center py-3"
-              : "justify-start gap-3 px-3 py-2"
-          }`}
+          className={`flex items-center transition-all duration-200 ${state === "collapsed"
+            ? "justify-center py-3"
+            : "justify-start gap-3 px-3 py-2"
+            }`}
         >
           <div className="shrink-0 w-12 h-12 flex items-center justify-center">
             <Image
@@ -161,14 +159,19 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
 
       {/* Sidebar Footer (User Info) */}
       <SidebarFooter>
-        <NavUser
-          user={{
-            id: userDetails.UserId || undefined,
-            name: `${userDetails.Firstname} ${userDetails.Lastname}`,
-            email: userDetails.Email,
-            avatar: userDetails.profilePicture,
-          }}
-        />
+        {userId ? (
+          <NavUser
+            user={{
+              id: userDetails.UserId || undefined,
+              name: `${userDetails.Firstname} ${userDetails.Lastname}`,
+              email: userDetails.Email,
+              avatar: userDetails.profilePicture,
+            }}
+            userId={userId}
+          />
+        ) : (
+          <></>
+        )}
       </SidebarFooter>
 
       <SidebarRail />
