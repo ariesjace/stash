@@ -48,6 +48,7 @@ interface NavUserProps {
     avatar: string
   };
   userId: string;
+   appendUserId?: (url: string) => string;
 }
 
 export function NavUser({ user, userId, }: NavUserProps) {

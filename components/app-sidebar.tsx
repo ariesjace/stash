@@ -159,20 +159,20 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
 
       {/* Sidebar Footer (User Info) */}
       <SidebarFooter>
-        {userId ? (
-          <NavUser
-            user={{
-              id: userDetails.UserId || undefined,
-              name: `${userDetails.Firstname} ${userDetails.Lastname}`,
-              email: userDetails.Email,
-              avatar: userDetails.profilePicture,
-            }}
-            userId={userId}
-          />
-        ) : (
-          <></>
-        )}
-      </SidebarFooter>
+  {userId ? (
+    <NavUser
+      user={{
+        id: userDetails.UserId || undefined,
+        name: `${userDetails.Firstname} ${userDetails.Lastname}`,
+        email: userDetails.Email,
+        avatar: userDetails.profilePicture,
+      }}
+      userId={userId}
+      appendUserId={(url: string) => appendUserId(url)} // ✅ Pass function
+    />
+  ) : null}
+</SidebarFooter>
+
 
       <SidebarRail />
     </Sidebar>
