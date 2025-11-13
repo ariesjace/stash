@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
@@ -46,23 +45,54 @@ interface NavUserProps {
     name: string
     email: string
     avatar: string
-  };
-  userId: string;
-   appendUserId?: (url: string) => string;
+  }
+  userId: string
+  appendUserId?: (url: string) => string
 }
 
-export function NavUser({ user, userId, }: NavUserProps) {
+export function NavUser({ user, userId, appendUserId }: NavUserProps) {
   const router = useRouter()
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const { state } = useSidebar()
+  const [userData, setUserData] = useState(user)
+
+  // ✅ Fetch latest user data automatically
+  useEffect(() => {
+    if (!userId) return
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch(`/api/user?id=${encodeURIComponent(userId)}`)
+        if (!res.ok) throw new Error("Failed to fetch user data")
+        const data = await res.json()
+        setUserData({
+          id: data._id,
+          name: `${data.Firstname || ""} ${data.Lastname || ""}`.trim() || "Unnamed User",
+          email: data.Email || "No email",
+          avatar: data.profilePicture || "/default-avatar.png",
+        })
+      } catch (err) {
+        console.error("Error fetching user:", err)
+      }
+    }
+
+    fetchUserData()
+
+    // Optional: Re-fetch automatically every 30s (live sync)
+    const interval = setInterval(fetchUserData, 30000)
+    return () => clearInterval(interval)
+  }, [userId])
 
   const handleLogout = () => {
-    // Clear user auth info from storage
-    localStorage.removeItem("userId");
-    // Redirect to login page
-    router.replace("/login");
+    localStorage.removeItem("userId")
+    router.replace("/login")
     setLogoutDialogOpen(false)
-  };
+  }
+
+  const linkWithUserId = (url: string) => {
+    if (appendUserId) return appendUserId(url)
+    const separator = url.includes("?") ? "&" : "?"
+    return `${url}${separator}userId=${encodeURIComponent(userId)}`
+  }
 
   return (
     <>
@@ -70,30 +100,34 @@ export function NavUser({ user, userId, }: NavUserProps) {
         <SidebarMenuItem className="relative">
           <div
             className={`flex items-center justify-between w-full transition-colors
-        ${state === "collapsed" ? "justify-center px-2 py-2" : "gap-2 px-2 py-1.5"}`}
+            ${state === "collapsed" ? "justify-center px-2 py-2" : "gap-2 px-2 py-1.5"}`}
           >
             {state === "collapsed" ? (
               <Avatar
                 className="h-8 w-8 rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => router.push("/profile")}
+                onClick={() => router.push(linkWithUserId("/profile"))}
               >
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+                <AvatarImage src={userData.avatar} alt={userData.name} />
+                <AvatarFallback className="rounded-lg">
+                  {userData.name?.[0] || "?"}
+                </AvatarFallback>
               </Avatar>
             ) : (
               <>
                 {/* Avatar + Info */}
                 <Link
-                  href="/profile"
+                  href={linkWithUserId("/profile")}
                   className="flex items-center gap-3 flex-1 rounded-lg px-2 py-1 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={user.avatar} alt={user.name} />
-                    <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+                    <AvatarImage src={userData.avatar} alt={userData.name} />
+                    <AvatarFallback className="rounded-lg">
+                      {userData.name?.[0] || "?"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col leading-tight">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    <span className="truncate font-medium">{userData.name}</span>
+                    <span className="truncate text-xs text-muted-foreground">{userData.email}</span>
                   </div>
                 </Link>
 
@@ -104,22 +138,18 @@ export function NavUser({ user, userId, }: NavUserProps) {
                       <EllipsisVertical className="size-4" />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="min-w-56 rounded-lg"
-                    align="end"
-                    sideOffset={4}
-                  >
+                  <DropdownMenuContent className="min-w-56 rounded-lg" align="end" sideOffset={4}>
                     <DropdownMenuLabel className="p-0 font-normal">
                       <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                         <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage src={user.avatar} alt={user.name} />
-                          <AvatarFallback className="rounded-lg">{user.name?.[0] || "?"}</AvatarFallback>
+                          <AvatarImage src={userData.avatar} alt={userData.name} />
+                          <AvatarFallback className="rounded-lg">
+                            {userData.name?.[0] || "?"}
+                          </AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 text-left text-sm leading-tight">
-                          <span className="truncate font-medium">{user.name}</span>
-                          <span className="truncate text-xs text-muted-foreground">
-                            {user.email}
-                          </span>
+                          <span className="truncate font-medium">{userData.name}</span>
+                          <span className="truncate text-xs text-muted-foreground">{userData.email}</span>
                         </div>
                       </div>
                     </DropdownMenuLabel>
@@ -128,7 +158,7 @@ export function NavUser({ user, userId, }: NavUserProps) {
 
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild>
-                        <Link href="/profile" className="flex items-center">
+                        <Link href={linkWithUserId("/profile")} className="flex items-center">
                           <BadgeCheck className="mr-2 h-4 w-4" />
                           Account
                         </Link>
@@ -153,8 +183,7 @@ export function NavUser({ user, userId, }: NavUserProps) {
         </SidebarMenuItem>
       </SidebarMenu>
 
-
-      {/* ✅ Logout Confirmation Dialog */}
+      {/* Logout Confirmation Dialog */}
       <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
