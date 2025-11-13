@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Fetch assets with status "spare" or "deployed"
     const spareOrDeployedAssets = await inventoryCollection
-      .find({ status: { $in: ["spare", "deployed"] } })
+      .find({ status: "spare" })
       .project({
         assetTag: 1,
         assetType: 1,
