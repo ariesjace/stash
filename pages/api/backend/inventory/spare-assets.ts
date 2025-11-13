@@ -19,6 +19,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         brand: 1,
         model: 1,
         serialNumber: 1,
+        status: 1,
+        ram: 1,
+        storage: 1,
+        processor: 1,
         _id: 0
       })
       .sort({ assetTag: 1 }) // Sort by assetTag

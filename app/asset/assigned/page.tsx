@@ -41,7 +41,7 @@ export default function AssignedAssetsPage() {
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
-          <PageHeader title="Assigned Assets" description="View and manage assigned assets" />
+          <PageHeader title="Assign Assets" description="Assign assest to Employees" />
           <ConfigurableDataTable
             data={data}
             columns={columns}

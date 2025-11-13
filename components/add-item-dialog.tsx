@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
+import { Badge } from "@/components/ui/badge"
 import {
   Popover,
   PopoverContent,
@@ -24,6 +25,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export const schema = z.record(z.string(), z.unknown())
 
@@ -59,11 +69,14 @@ export function AddItemDialog({
   userDetails,
   fetchPosts,
 }: AddItemDialogProps) {
- const [formData, setFormData] = React.useState<Record<string, any>>(() => {
-  const initial: Record<string, string> = {}
+  const [step, setStep] = React.useState<"selectAsset" | "form">("form")
+  const [selectedAsset, setSelectedAsset] = React.useState<any>(null)
 
-  const allFields = pageType === "assigned"
-    ? [
+  const [formData, setFormData] = React.useState<Record<string, any>>(() => {
+    const initial: Record<string, string> = {}
+
+    const allFields = pageType === "assigned"
+      ? [
         { key: "assetTag", defaultValue: "" },
         { key: "assetType", defaultValue: "" },
         { key: "brand", defaultValue: "" },
@@ -74,21 +87,30 @@ export function AddItemDialog({
         { key: "position", defaultValue: "" },
         { key: "department", defaultValue: "" },
       ]
-    : fields
+      : fields
 
-  allFields.forEach((field) => {
-    // Provide a safe fallback if defaultValue does not exist
-    initial[field.key] = field.defaultValue ?? ""
+    allFields.forEach((field) => {
+      initial[field.key] = field.defaultValue ?? ""
+    })
+
+    initial["remarks"] = ""
+    return initial
   })
-
-  initial["remarks"] = ""
-  return initial
-})
 
   const [purchaseDate, setPurchaseDate] = React.useState<Date | undefined>(undefined)
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [spareAssets, setSpareAssets] = React.useState<any[]>([])
   const [isLoadingAssets, setIsLoadingAssets] = React.useState(false)
+
+  // Reset step when dialog opens/closes
+  React.useEffect(() => {
+    if (!open) {
+      setStep(pageType === "assigned" ? "selectAsset" : "form")
+      setSelectedAsset(null)
+    } else if (open && pageType === "assigned") {
+      setStep("selectAsset")
+    }
+  }, [open, pageType])
 
   // Fetch spare assets for assigned page from inventory collection
   React.useEffect(() => {
@@ -180,29 +202,17 @@ export function AddItemDialog({
     setIsCalendarOpen(false)
   }
 
-  // Handle asset tag selection for assigned page
-  const handleAssetTagChange = (assetTag: string) => {
-    const asset = spareAssets.find((a) => a.assetTag === assetTag)
-    if (asset) {
-      setFormData((prev) => ({
-        ...prev,
-        assetTag,
-        assetType: asset.assetType || "",
-        brand: asset.brand || "",
-        model: asset.model || "",
-        serialNumber: asset.serialNumber || "",
-      }))
-    } else {
-      // Clear autofilled fields if no asset selected
-      setFormData((prev) => ({
-        ...prev,
-        assetTag,
-        assetType: "",
-        brand: "",
-        model: "",
-        serialNumber: "",
-      }))
-    }
+  // Handle asset selection and autofill
+  const handleAssetSelect = (asset: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      assetTag: asset.assetTag || "",
+      assetType: asset.assetType || "",
+      brand: asset.brand || "",
+      model: asset.model || "",
+      serialNumber: asset.serialNumber || "",
+      oldUser: asset.newUser || "", // Current user becomes old user
+    }))
   }
 
   const handleAddNew = async () => {
@@ -226,12 +236,10 @@ export function AddItemDialog({
     }
 
     try {
-      // Prepare payload - for assigned page, ensure we have all asset details
       const payload = {
         ...formData,
         createdBy: userDetails?.UserId,
-        pageType: pageType, // Include page type to help backend
-        // For assigned page, don't override status in formData, it will be updated separately
+        pageType: pageType,
       }
 
       console.log("📤 Submitting payload:", payload)
@@ -253,23 +261,23 @@ export function AddItemDialog({
 
       toast.success("Data Added Successfully!")
 
-      // Update asset status to deployed if assigned - THIS IS CRITICAL
+      // Update asset status to deployed if assigned
       if (pageType === "assigned" && formData.assetTag) {
         console.log("🔄 Updating asset status to deployed for:", formData.assetTag)
         try {
           const statusRes = await fetch("/api/backend/inventory/update-status", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                assetTag: formData.assetTag,
-                status: "deployed",
-                newUser: formData.newUser,
-                oldUser: formData.oldUser,
-                remarks: formData.remarks,
-                department: formData.department,
-                position: formData.position,
-              }),
-            })
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              assetTag: formData.assetTag,
+              status: "deployed",
+              newUser: formData.newUser,
+              oldUser: formData.oldUser,
+              remarks: formData.remarks,
+              department: formData.department,
+              position: formData.position,
+            }),
+          })
 
           const statusResult = await statusRes.json()
           console.log("✅ Status update response:", statusResult)
@@ -303,6 +311,7 @@ export function AddItemDialog({
       reset["remarks"] = ""
       setFormData(reset)
       setPurchaseDate(undefined)
+      setSelectedAsset(null)
       onOpenChange(false)
     } catch (error: any) {
       console.error("❌ Submit error:", error)
@@ -314,7 +323,7 @@ export function AddItemDialog({
 
   const renderFields = pageType === "assigned"
     ? [
-      { key: "assetTag", label: "Asset Tag", required: true },
+      { key: "assetTag", label: "Asset Tag", required: true, readOnly: true },
       { key: "assetType", label: "Asset Type", readOnly: true },
       { key: "brand", label: "Brand", readOnly: true },
       { key: "model", label: "Model", readOnly: true },
@@ -326,7 +335,132 @@ export function AddItemDialog({
     ]
     : fields
 
-  const DialogBody = (
+  // Asset Selection Step (Card View)
+  const AssetSelectionStep = () => (
+    <div className="max-h-[70vh] overflow-y-auto px-1">
+      {isLoadingAssets ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">Loading spare assets...</p>
+        </div>
+      ) : spareAssets.length === 0 ? (
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">No spare assets available</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-3 mb-4">
+            {spareAssets
+              // Sort assets by storage descending (largest first)
+              .sort((a, b) => {
+                const parseStorage = (s?: string) => {
+                  if (!s) return 0;
+                  if (s.toLowerCase().includes("tb")) return parseFloat(s) * 1024;
+                  return parseFloat(s);
+                };
+                return parseStorage(b.storage) - parseStorage(a.storage);
+              })
+              .map((asset) => {
+                const isSelected = selectedAsset?.assetTag === asset.assetTag;
+
+                // Determine if asset is "Recommended" based on storage
+                const storageValue = asset.storage ? asset.storage.toLowerCase() : "";
+                let storageGB = 0;
+                if (storageValue.includes("tb")) storageGB = parseFloat(storageValue) * 1024;
+                else if (storageValue.includes("gb")) storageGB = parseFloat(storageValue);
+
+                const isRecommended = storageGB >= 500; // threshold: 500GB+
+
+                return (
+                  <div
+                    key={asset.assetTag}
+                    className={`cursor-pointer transition-all border rounded-lg ${isSelected
+                        ? "border-blue-600 bg-blue-50 shadow-md"
+                        : "border-gray-300 hover:border-blue-400 hover:shadow-sm"
+                      }`}
+                    onClick={() => setSelectedAsset(asset)}
+                  >
+                    <Card>
+                      {/* Header */}
+                      <CardHeader className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>{asset.assetTag}</CardTitle>
+                          <CardDescription>{asset.assetType}</CardDescription>
+                        </div>
+                        {isSelected && (
+                          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M5 13l4 4L19 7"></path>
+                            </svg>
+                          </div>
+                        )}
+                      </CardHeader>
+
+                      {/* Body */}
+                      <CardContent className="pl-6">
+                        <p className="text-xs text-muted-foreground mb-2">
+                          This asset is a {asset.brand} {asset.model} with {asset.ram} RAM, powered by a {asset.processor} processor and {asset.storage} storage. Perfect for office or technical use.
+                        </p>
+
+                        <div className="flex flex-col gap-1">
+                          <p className="text-xs mb-1">Brand: {asset.brand}</p>
+                          <p className="text-xs mb-1">Model: {asset.model}</p>
+                          <p className="text-xs mb-1">RAM: {asset.ram}</p>
+                          <p className="text-xs mb-1">Processor: {asset.processor}</p>
+                          <p className="text-xs mb-1">Storage: {asset.storage}</p>
+                        </div>
+                      </CardContent>
+
+                      {/* Footer */}
+                      <CardFooter className="bg-gray-50 px-4 py-2 text-right flex justify-end items-center gap-2">
+                        <Badge className="capitalize">{asset.status}</Badge>
+                        {isRecommended && (
+                          <span className="text-xs font-medium text-green-600">Recommended</span>
+                        )}
+                      </CardFooter>
+                    </Card>
+                  </div>
+                );
+              })}
+          </div>
+
+
+
+
+          <div className="sticky bottom-0 bg-white pt-4 border-t flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            {selectedAsset && (
+              <Button
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                onClick={() => {
+                  handleAssetSelect(selectedAsset)
+                  setStep("form")
+                }}
+              >
+                Proceed with {selectedAsset.assetTag}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  )
+
+  // Form Step
+  const FormStep = () => (
     <div className="max-h-[70vh] overflow-y-auto px-1 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
         {renderFields
@@ -334,36 +468,6 @@ export function AddItemDialog({
           .map((field) => {
             const isSelect = field.key in options && Array.isArray(options[field.key as keyof typeof options])
             const isAssetTag = field.key === "assetTag"
-
-            // Assigned page Asset Tag dropdown - show only asset tag
-            if (isAssetTag && pageType === "assigned") {
-              return (
-                <div key={field.key} className="flex flex-col">
-                  <Label htmlFor={field.key} className="text-sm font-medium text-muted-foreground mb-1">
-                    {field.label} <span className="text-red-500">*</span>
-                  </Label>
-                  <select
-                    id={field.key}
-                    value={formData.assetTag || ""}
-                    onChange={(e) => handleAssetTagChange(e.target.value)}
-                    disabled={isLoadingAssets}
-                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="">
-                      {isLoadingAssets ? "Loading assets..." : "Select Asset Tag"}
-                    </option>
-                    {spareAssets.map((a) => (
-                      <option key={a.assetTag} value={a.assetTag}>
-                        {a.assetTag}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )
-            }
-
-            // Check if field is readonly (for assigned page autofilled fields)
-            // In assigned page: assetType, brand, model, serialNumber should be disabled
             const isReadOnly = pageType === "assigned" && field.readOnly
             const isDisabled = isReadOnly
 
@@ -441,12 +545,24 @@ export function AddItemDialog({
     </div>
   )
 
-  const DialogFooterButtons = (
+  const DialogBody = step === "selectAsset" && pageType === "assigned"
+    ? <AssetSelectionStep />
+    : <FormStep />
+
+  const DialogFooterButtons = step === "form" ? (
     <DialogFooter className="mt-4">
+      {pageType === "assigned" && (
+        <Button variant="outline" onClick={() => {
+          setStep("selectAsset")
+          setSelectedAsset(null)
+        }}>
+          Back
+        </Button>
+      )}
       <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
       <Button onClick={handleAddNew} className="bg-blue-600 hover:bg-blue-700">Add Item</Button>
     </DialogFooter>
-  )
+  ) : null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -457,8 +573,16 @@ export function AddItemDialog({
       )}
       <DialogContent className={`${sizeClasses[dialogSize]} p-6`}>
         <DialogHeader>
-          <DialogTitle>Add New Item</DialogTitle>
-          <DialogDescription>Fill in the details to add a new item to the database.</DialogDescription>
+          <DialogTitle>
+            {step === "selectAsset" && pageType === "assigned"
+              ? "Select Spare Asset"
+              : "Add New Item"}
+          </DialogTitle>
+          <DialogDescription>
+            {step === "selectAsset" && pageType === "assigned"
+              ? "Select a spare asset from the available inventory to assign to a user."
+              : "Fill in the details to add a new item to the database."}
+          </DialogDescription>
         </DialogHeader>
         {DialogBody}
         {DialogFooterButtons}
