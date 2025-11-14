@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Stash - IT Asset Management System",
   description: "Localized IT Asset Management System built with Next.js and Tailwind CSS",
   icons: {
-    icon: "/stash-mini.png",
+    icon: "/stash-mini-darkmode.png",
   },
 }
 
