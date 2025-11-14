@@ -5,8 +5,9 @@ import { ConfigurableDataTable } from "@/components/configurable-data-table"
 import { PageHeader } from "@/components/pageheader"
 import data from "./data.json"
 
-const columns = ["newUser", "oldUser", "department", "position", "status", "brand", "assetType", "model", "serialNumber", "remarks"]
+const columns = ["assetTag", "newUser", "oldUser", "department", "position", "status", "brand", "assetType", "model", "serialNumber", "remarks"]
 const columnLabels = {
+  assetTag: "Asset Tag",
   newUser: "New User",
   oldUser: "Old User",
   department: "Department",
