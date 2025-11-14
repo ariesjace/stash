@@ -84,7 +84,7 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
       isActive: pathname?.startsWith("/asset"),
       items: [
         { title: "Inventory", url: appendUserId("/asset/inventory") },
-        { title: "Assigned Assets", url: appendUserId("/asset/assigned") },
+        { title: "Assign Assets", url: appendUserId("/asset/assigned") },
         { title: "Disposal", url: appendUserId("/asset/disposal") },
         { title: "License Management", url: appendUserId("/asset/liscence") },
         { title: "Warranty Management", url: appendUserId("/asset/warranty") },

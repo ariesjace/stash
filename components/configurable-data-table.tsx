@@ -503,8 +503,7 @@ export function ConfigurableDataTable({
   /* ---------------------- RENDER --------------------- */
   const selectedRowCount = Object.keys(rowSelection).filter((key) => (rowSelection as Record<string, boolean>)[key]).length
   const handleAddNew = (item?: any) => {
-    // Placeholder implementation: PageButtonGroup may open its own dialog and pass a new item.
-    // If it passes an item, add it to local state; otherwise show a message.
+
     if (!item) {
       toast.error("Add new not implemented")
       return

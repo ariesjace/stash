@@ -41,12 +41,12 @@ export default function AssetManagementPage() {
 
             <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Assigned Assets</CardTitle>
+                <CardTitle>Assign Assets</CardTitle>
                 <CardDescription>View and manage assigned assets</CardDescription>
               </CardHeader>
               <CardContent>
                 <Link href={appendUserId("/asset/assigned")}>
-                  <Button className="w-full">View Assets</Button>
+                  <Button className="w-full">Go to Assign</Button>
                 </Link>
               </CardContent>
             </Card>
