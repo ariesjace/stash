@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/dialog"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -74,7 +73,6 @@ export function AddItemDialog({
 
   const [formData, setFormData] = React.useState<Record<string, any>>(() => {
     const initial: Record<string, string> = {}
-
     const allFields = pageType === "assigned"
       ? [
         { key: "assetTag", defaultValue: "" },
@@ -92,7 +90,6 @@ export function AddItemDialog({
     allFields.forEach((field) => {
       initial[field.key] = field.defaultValue ?? ""
     })
-
     initial["remarks"] = ""
     return initial
   })
@@ -102,7 +99,6 @@ export function AddItemDialog({
   const [spareAssets, setSpareAssets] = React.useState<any[]>([])
   const [isLoadingAssets, setIsLoadingAssets] = React.useState(false)
 
-  // Reset step when dialog opens/closes
   React.useEffect(() => {
     if (!open) {
       setStep(pageType === "assigned" ? "selectAsset" : "form")
@@ -112,24 +108,20 @@ export function AddItemDialog({
     }
   }, [open, pageType])
 
-  // Fetch spare assets for assigned page from inventory collection
   React.useEffect(() => {
     if (pageType === "assigned" && open) {
       setIsLoadingAssets(true)
       fetch("/api/backend/inventory/spare-assets")
         .then((res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`)
-          }
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
           return res.json()
         })
         .then((data) => {
-          console.log("Fetched spare assets from inventory collection:", data)
           setSpareAssets(data || [])
           setIsLoadingAssets(false)
         })
         .catch((err) => {
-          console.error("Error fetching spare assets from inventory:", err)
+          console.error("Error fetching spare assets:", err)
           toast.error("Failed to load spare assets from inventory")
           setIsLoadingAssets(false)
         })
@@ -162,9 +154,8 @@ export function AddItemDialog({
         body: JSON.stringify({ assetType: value }),
       })
       const result = await res.json()
-      if (res.ok && result.assetTag) {
-        setFormData((prev) => ({ ...prev, assetTag: result.assetTag }))
-      } else {
+      if (res.ok && result.assetTag) setFormData((prev) => ({ ...prev, assetTag: result.assetTag }))
+      else {
         toast.error("Failed to generate asset tag")
         setFormData((prev) => ({ ...prev, assetTag: "" }))
       }
@@ -180,16 +171,8 @@ export function AddItemDialog({
     let years = now.getFullYear() - date.getFullYear()
     let months = now.getMonth() - date.getMonth()
     let days = now.getDate() - date.getDate()
-
-    if (days < 0) {
-      months -= 1
-      days += new Date(now.getFullYear(), now.getMonth(), 0).getDate()
-    }
-    if (months < 0) {
-      years -= 1
-      months += 12
-    }
-
+    if (days < 0) { months -= 1; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate() }
+    if (months < 0) { years -= 1; months += 12 }
     return `${years}y ${months}m ${days}d`
   }
 
@@ -202,7 +185,6 @@ export function AddItemDialog({
     setIsCalendarOpen(false)
   }
 
-  // Handle asset selection and autofill
   const handleAssetSelect = (asset: any) => {
     setFormData((prev) => ({
       ...prev,
@@ -211,7 +193,7 @@ export function AddItemDialog({
       brand: asset.brand || "",
       model: asset.model || "",
       serialNumber: asset.serialNumber || "",
-      oldUser: asset.newUser || "", // Current user becomes old user
+      oldUser: asset.newUser || "",
     }))
   }
 
@@ -236,23 +218,34 @@ export function AddItemDialog({
     }
 
     try {
+      // Automatically set status to dispose if asset is >= 5 years old
+      let autoStatus = formData.status || "spare"
+      if (formData.purchaseDate) {
+        const purchase = new Date(formData.purchaseDate)
+        const now = new Date()
+        const diffYears = now.getFullYear() - purchase.getFullYear()
+        const monthCheck = now.getMonth() - purchase.getMonth()
+        const dayCheck = now.getDate() - purchase.getDate()
+        const isOver5Years = diffYears > 5 || (diffYears === 5 && (monthCheck > 0 || (monthCheck === 0 && dayCheck >= 0)))
+        if (isOver5Years) {
+          autoStatus = "dispose"
+          toast.info("Asset is over 5 years old. Status automatically set to 'dispose'.")
+        }
+      }
+
       const payload = {
         ...formData,
+        status: autoStatus,
         createdBy: userDetails?.UserId,
         pageType: pageType,
       }
-
-      console.log("📤 Submitting payload:", payload)
 
       const res = await fetch("/api/backend/inventory/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-
       const result = await res.json()
-      console.log("📥 Response:", result)
-
       if (!res.ok) {
         console.error("❌ Create failed:", result)
         toast.error(result.error || result.message || "Error occurred.")
@@ -261,9 +254,7 @@ export function AddItemDialog({
 
       toast.success("Data Added Successfully!")
 
-      // Update asset status to deployed if assigned
       if (pageType === "assigned" && formData.assetTag) {
-        console.log("🔄 Updating asset status to deployed for:", formData.assetTag)
         try {
           const statusRes = await fetch("/api/backend/inventory/update-status", {
             method: "POST",
@@ -278,34 +269,17 @@ export function AddItemDialog({
               position: formData.position,
             }),
           })
-
           const statusResult = await statusRes.json()
-          console.log("✅ Status update response:", statusResult)
-
           if (!statusRes.ok) {
-            console.error("❌ Status update failed:", statusResult)
             toast.warning("Assignment created but failed to update asset status. Please update manually.")
-          } else {
-            console.log("✅ Asset status successfully updated to deployed")
           }
         } catch (statusError) {
-          console.error("❌ Error updating asset status:", statusError)
           toast.warning("Assignment created but failed to update asset status. Please update manually.")
         }
       }
 
-      // Refresh the table data
-      if (fetchPosts && userDetails?.ReferenceID) {
-        console.log("🔄 Refreshing data for:", userDetails.ReferenceID)
-        fetchPosts(userDetails.ReferenceID)
-      } else {
-        console.warn("⚠️ fetchPosts or ReferenceID not available:", {
-          hasFetchPosts: !!fetchPosts,
-          referenceId: userDetails?.ReferenceID
-        })
-      }
+      if (fetchPosts && userDetails?.ReferenceID) fetchPosts(userDetails.ReferenceID)
 
-      // Reset form
       const reset: Record<string, string> = {}
       fields.forEach((field) => { reset[field.key] = field.defaultValue || "" })
       reset["remarks"] = ""
@@ -335,7 +309,6 @@ export function AddItemDialog({
     ]
     : fields
 
-  // Asset Selection Step (Card View)
   const AssetSelectionStep = () => (
     <div className="max-h-[70vh] overflow-y-auto px-1">
       {isLoadingAssets ? (
@@ -350,37 +323,32 @@ export function AddItemDialog({
         <>
           <div className="grid grid-cols-1 gap-3 mb-4">
             {spareAssets
-              // Sort assets by storage descending (largest first)
               .sort((a, b) => {
                 const parseStorage = (s?: string) => {
-                  if (!s) return 0;
-                  if (s.toLowerCase().includes("tb")) return parseFloat(s) * 1024;
-                  return parseFloat(s);
-                };
-                return parseStorage(b.storage) - parseStorage(a.storage);
+                  if (!s) return 0
+                  if (s.toLowerCase().includes("tb")) return parseFloat(s) * 1024
+                  return parseFloat(s)
+                }
+                return parseStorage(b.storage) - parseStorage(a.storage)
               })
               .map((asset) => {
-                const isSelected = selectedAsset?.assetTag === asset.assetTag;
-
-                // Determine if asset is "Recommended" based on storage
-                const storageValue = asset.storage ? asset.storage.toLowerCase() : "";
-                let storageGB = 0;
-                if (storageValue.includes("tb")) storageGB = parseFloat(storageValue) * 1024;
-                else if (storageValue.includes("gb")) storageGB = parseFloat(storageValue);
-
-                const isRecommended = storageGB >= 500; // threshold: 500GB+
+                const isSelected = selectedAsset?.assetTag === asset.assetTag
+                const storageValue = asset.storage ? asset.storage.toLowerCase() : ""
+                let storageGB = 0
+                if (storageValue.includes("tb")) storageGB = parseFloat(storageValue) * 1024
+                else if (storageValue.includes("gb")) storageGB = parseFloat(storageValue)
+                const isRecommended = storageGB >= 500
 
                 return (
                   <div
                     key={asset.assetTag}
                     className={`cursor-pointer transition-all border rounded-lg ${isSelected
-                        ? "border-blue-600 bg-blue-50 shadow-md"
-                        : "border-gray-300 hover:border-blue-400 hover:shadow-sm"
-                      }`}
+                      ? "border-blue-600 bg-blue-50 shadow-md"
+                      : "border-gray-300 hover:border-blue-400 hover:shadow-sm"
+                    }`}
                     onClick={() => setSelectedAsset(asset)}
                   >
                     <Card>
-                      {/* Header */}
                       <CardHeader className="flex items-center justify-between">
                         <div>
                           <CardTitle>{asset.assetTag}</CardTitle>
@@ -388,27 +356,17 @@ export function AddItemDialog({
                         </div>
                         {isSelected && (
                           <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center shrink-0">
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="none"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
+                            <svg className="w-4 h-4 text-white" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                               <path d="M5 13l4 4L19 7"></path>
                             </svg>
                           </div>
                         )}
                       </CardHeader>
 
-                      {/* Body */}
                       <CardContent className="pl-6">
                         <p className="text-xs text-muted-foreground mb-2">
                           This asset is a {asset.brand} {asset.model} with {asset.ram} RAM, powered by a {asset.processor} processor and {asset.storage} storage. Perfect for office or technical use.
                         </p>
-
                         <div className="flex flex-col gap-1">
                           <p className="text-xs mb-1">Brand: {asset.brand}</p>
                           <p className="text-xs mb-1">Model: {asset.model}</p>
@@ -418,7 +376,6 @@ export function AddItemDialog({
                         </div>
                       </CardContent>
 
-                      {/* Footer */}
                       <CardFooter className="bg-gray-50 px-4 py-2 text-right flex justify-end items-center gap-2">
                         <Badge className="capitalize">{asset.status}</Badge>
                         {isRecommended && (
@@ -427,28 +384,16 @@ export function AddItemDialog({
                       </CardFooter>
                     </Card>
                   </div>
-                );
+                )
               })}
           </div>
 
-
-
-
           <div className="sticky bottom-0 bg-white pt-4 border-t flex gap-2">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
+            <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancel</Button>
             {selectedAsset && (
               <Button
                 className="flex-1 bg-blue-600 hover:bg-blue-700"
-                onClick={() => {
-                  handleAssetSelect(selectedAsset)
-                  setStep("form")
-                }}
+                onClick={() => { handleAssetSelect(selectedAsset); setStep("form") }}
               >
                 Proceed with {selectedAsset.assetTag}
               </Button>
@@ -459,7 +404,6 @@ export function AddItemDialog({
     </div>
   )
 
-  // Form Step
   const FormStep = () => (
     <div className="max-h-[70vh] overflow-y-auto px-1 space-y-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
@@ -510,34 +454,31 @@ export function AddItemDialog({
             )
           })}
 
-        {/* Purchase Date - Only show for non-assigned pages */}
         {pageType !== "assigned" && (
-          <div className="flex flex-col">
-            <Label htmlFor="purchaseDate" className="text-sm font-medium text-muted-foreground mb-1">Purchase Date</Label>
-            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-between font-normal">
-                  {purchaseDate ? purchaseDate.toLocaleDateString() : "Select purchase date"}
-                  <ChevronDownIcon className="h-4 w-4 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={purchaseDate} captionLayout="dropdown" onSelect={handleDateSelect} />
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
+          <>
+            <div className="flex flex-col">
+              <Label htmlFor="purchaseDate" className="text-sm font-medium text-muted-foreground mb-1">Purchase Date</Label>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between font-normal">
+                    {purchaseDate ? purchaseDate.toLocaleDateString() : "Select purchase date"}
+                    <ChevronDownIcon className="h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar mode="single" selected={purchaseDate} captionLayout="dropdown" onSelect={handleDateSelect} />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-        {/* Asset Age - Only show for non-assigned pages */}
-        {pageType !== "assigned" && (
-          <div className="flex flex-col">
-            <Label htmlFor="assetAge" className="text-sm font-medium text-muted-foreground mb-1">Asset Age</Label>
-            <Input id="assetAge" placeholder="Auto-calculated" value={formData.assetAge || ""} readOnly className="bg-gray-50 text-gray-600 cursor-not-allowed" />
-          </div>
+            <div className="flex flex-col">
+              <Label htmlFor="assetAge" className="text-sm font-medium text-muted-foreground mb-1">Asset Age</Label>
+              <Input id="assetAge" placeholder="Auto-calculated" value={formData.assetAge || ""} readOnly className="bg-gray-50 text-gray-600 cursor-not-allowed" />
+            </div>
+          </>
         )}
       </div>
 
-      {/* Remarks */}
       <div className="mt-4">
         <Label htmlFor="remarks" className="text-sm font-medium text-muted-foreground mb-1">Remarks</Label>
         <Textarea id="remarks" placeholder="Enter any remarks here..." value={formData.remarks || ""} onChange={(e) => setFormData({ ...formData, remarks: e.target.value })} className="min-h-[100px]" />
@@ -552,10 +493,7 @@ export function AddItemDialog({
   const DialogFooterButtons = step === "form" ? (
     <DialogFooter className="mt-4">
       {pageType === "assigned" && (
-        <Button variant="outline" onClick={() => {
-          setStep("selectAsset")
-          setSelectedAsset(null)
-        }}>
+        <Button variant="outline" onClick={() => { setStep("selectAsset"); setSelectedAsset(null) }}>
           Back
         </Button>
       )}

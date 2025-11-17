@@ -11,7 +11,6 @@ const columns = [
   "remaining",
   "complianceStatus",
   "action",
-  "networkInstallations",
 ]
 const columnLabels = {
   softwareName: "Software Name",
@@ -21,7 +20,6 @@ const columnLabels = {
   remaining: "Remaining",
   complianceStatus: "Compliance Status",
   action: "Action",
-  networkInstallations: "Network Installations",
 }
 
 export default function LiscenceManagementPage() {

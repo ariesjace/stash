@@ -48,6 +48,7 @@ export default function MaintenancePage() {
             assetTag: asset.assetTag,
             assetType: asset.assetType,
             brand: asset.brand,
+            ram: asset.ram,
             model: asset.model,
             status: 'Pending',
             remarks: asset.remarks || '',

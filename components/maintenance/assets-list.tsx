@@ -47,6 +47,15 @@ export function AssetsList({ assets, selectedId, onSelectAsset }: AssetsListProp
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                 {asset.assetType}
               </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                {asset.processor}
+              </p>
+               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                {asset.ram}
+              </p>
+               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                {asset.storage}
+              </p>
             </div>
             <div className="flex items-start gap-3 shrink-0">
               <span
