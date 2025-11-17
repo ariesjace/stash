@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 
 interface Asset {
-  id: string; // ⭐ FIX: ID is always string
+  id: string;
   assetTag: string;
   assetType: string;
   brand: string;
@@ -18,8 +18,8 @@ interface Asset {
 
 interface AssetsListProps {
   assets: Asset[];
-  selectedId: string | null; // ⭐ FIX: string
-  onSelectAsset: (id: string) => void; // ⭐ FIX: string
+  selectedId: string | null;
+  onSelectAsset: (assetTag: string) => void;
 }
 
 export function AssetsList({ assets, selectedId, onSelectAsset }: AssetsListProps) {
@@ -27,11 +27,11 @@ export function AssetsList({ assets, selectedId, onSelectAsset }: AssetsListProp
     <div className="space-y-3">
       {assets.map((asset) => (
         <Card
-          key={`asset-${asset.id}`} // always unique now
-          onClick={() => onSelectAsset(asset.id)}
+          key={`asset-${asset.assetTag}`}
+          onClick={() => onSelectAsset(asset.assetTag)}
           className={cn(
             'p-4 cursor-pointer transition-all border-2',
-            selectedId === asset.id
+            selectedId === asset.assetTag
               ? 'border-gray-900 dark:border-white bg-white dark:bg-gray-900 shadow-md'
               : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
           )}
@@ -50,13 +50,14 @@ export function AssetsList({ assets, selectedId, onSelectAsset }: AssetsListProp
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                 {asset.processor}
               </p>
-               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                 {asset.ram}
               </p>
-               <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                 {asset.storage}
               </p>
             </div>
+
             <div className="flex items-start gap-3 shrink-0">
               <span
                 className={cn(
@@ -70,7 +71,8 @@ export function AssetsList({ assets, selectedId, onSelectAsset }: AssetsListProp
               >
                 {asset.status}
               </span>
-              {selectedId === asset.id && (
+
+              {selectedId === asset.assetTag && (
                 <div className="w-3 h-3 rounded-full bg-gray-900 dark:bg-white shrink-0 mt-1" />
               )}
             </div>
