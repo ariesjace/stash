@@ -49,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const db = await connectToDatabase();
 
       const worklogs = await db
-        .collection("maintenance_worklogs")
+        .collection("maintenance")
         .find({ assetId: Number(assetId) })
         .sort({ createdAt: -1 })
         .toArray();
