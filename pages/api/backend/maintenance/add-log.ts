@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/MongoDB";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
   }
@@ -12,7 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { assetId, comment } = req.body;
     if (!assetId || !comment) {
-      return res.status(400).json({ error: "assetId and comment are required" });
+      return res
+        .status(400)
+        .json({ error: "assetId and comment are required" });
     }
 
     const newLog = {

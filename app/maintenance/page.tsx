@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { PageHeader } from '@/components/pageheader';
-import { AssetsList } from '@/components/maintenance/assets-list';
-import { WorklogPanel } from '@/components/maintenance/worklog-panel';
+import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/pageheader";
+import { AssetsList } from "@/components/maintenance/assets-list";
+import { WorklogPanel } from "@/components/maintenance/worklog-panel";
 
 export default function MaintenancePage() {
   const [assets, setAssets] = useState<any[]>([]);
@@ -13,12 +13,12 @@ export default function MaintenancePage() {
   const fetchAssets = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/backend/maintenance/fetch-defective');
+      const res = await fetch("/api/backend/maintenance/fetch-defective");
       const json = await res.json();
       setAssets(json.data || []);
       if (json.data?.length) setSelectedId(json.data[0]._id);
     } catch (err) {
-      console.error('Error fetching defective assets:', err);
+      console.error("Error fetching defective assets:", err);
     } finally {
       setLoading(false);
     }
@@ -40,11 +40,15 @@ export default function MaintenancePage() {
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">Loading assets...</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              Loading assets...
+            </p>
           </div>
         ) : assets.length === 0 ? (
           <div className="flex items-center justify-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">No defective assets found</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No defective assets found
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
@@ -64,7 +68,10 @@ export default function MaintenancePage() {
             <div className="lg:col-span-2">
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 h-full">
                 {selectedAsset ? (
-                  <WorklogPanel asset={selectedAsset} initialWorklogs={selectedAsset.worklogs} />
+                  <WorklogPanel
+                    asset={selectedAsset}
+                    initialWorklogs={selectedAsset.worklogs}
+                  />
                 ) : (
                   <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
                     <p>Select an asset to view its maintenance worklog</p>

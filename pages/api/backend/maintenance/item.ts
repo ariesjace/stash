@@ -2,7 +2,10 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { connectToDatabase } from "@/lib/MongoDB";
 import { ObjectId } from "mongodb";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   const db = await connectToDatabase();
   const collection = db.collection("maintenance");
 
@@ -51,7 +54,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!logId) return res.status(400).json({ error: "Missing logId" });
 
       const deleted = await collection.deleteOne({ _id: new ObjectId(logId) });
-      return res.status(200).json({ message: "Deleted", deletedCount: deleted.deletedCount });
+      return res
+        .status(200)
+        .json({ message: "Deleted", deletedCount: deleted.deletedCount });
     }
 
     return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
