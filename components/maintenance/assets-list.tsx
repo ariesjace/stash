@@ -1,89 +1,59 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui/card';
+import React from 'react';
 
 interface Asset {
-  id: string;
+  _id: string;
   assetTag: string;
-  assetType: string;
-  brand: string;
-  model: string;
-  processor: string;
-  ram: string;
-  storage: string;
-  status: 'Pending' | 'In Progress' | 'Completed';
-  remarks: string;
+  brand?: string;
+  model?: string;
+  status?: 'defective' | 'spare' | 'deployed' | 'dispose';
 }
 
 interface AssetsListProps {
   assets: Asset[];
   selectedId: string | null;
-  onSelectAsset: (assetTag: string) => void;
+  onSelectAsset: (id: string) => void;
 }
 
 export function AssetsList({ assets, selectedId, onSelectAsset }: AssetsListProps) {
+  const getStatusClasses = (status?: string) => {
+    switch (status) {
+      case 'spare':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'deployed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'dispose':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'defective':
+        return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    }
+  };
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {assets.map((asset) => (
-        <Card
-          key={`asset-${asset.assetTag}`}
-          onClick={() => onSelectAsset(asset.assetTag)}
-          className={cn(
-            'p-4 cursor-pointer transition-all border-2',
-            selectedId === asset.assetTag
-              ? 'border-gray-900 dark:border-white bg-white dark:bg-gray-900 shadow-md'
-              : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
-          )}
+        <div
+          key={asset._id}
+          onClick={() => onSelectAsset(asset._id)}
+          className={`cursor-pointer flex justify-between items-center p-3 border rounded-md transition-colors
+            ${selectedId === asset._id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900' : 'border-gray-200 dark:border-gray-700'}
+          `}
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-gray-900 dark:text-white">
-                {asset.assetTag}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {asset.brand} {asset.model}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                {asset.assetType}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                {asset.processor}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                {asset.ram}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                {asset.storage}
-              </p>
-            </div>
-
-            <div className="flex items-start gap-3 shrink-0">
-              <span
-                className={cn(
-                  'inline-block px-2 py-1 rounded text-xs font-medium whitespace-nowrap',
-                  asset.status === 'Pending'
-                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    : asset.status === 'In Progress'
-                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                    : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                )}
-              >
-                {asset.status}
-              </span>
-
-              {selectedId === asset.assetTag && (
-                <div className="w-3 h-3 rounded-full bg-gray-900 dark:bg-white shrink-0 mt-1" />
-              )}
-            </div>
-          </div>
-
-          {asset.remarks && (
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2 line-clamp-1">
-              {asset.remarks}
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white">{asset.assetTag}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {asset.brand} {asset.model}
             </p>
-          )}
-        </Card>
+          </div>
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded ${getStatusClasses(asset.status)}`}
+          >
+            {asset.status || 'unknown'}
+          </span>
+        </div>
       ))}
     </div>
   );
