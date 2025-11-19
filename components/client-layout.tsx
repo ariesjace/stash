@@ -13,7 +13,7 @@ import { useUser } from "@/contexts/UserContext"
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || "/"
   const { userId, setUserId } = useUser()
-  const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/otp"
+  const isAuthPage = pathname === "/auth/login" || pathname === "/auth/signup" || pathname === "/auth/otp"
   const showBreadcrumbsInstead = pathname.startsWith("/asset/")
 
   // ✅ Auto-sync with localStorage whenever it changes
