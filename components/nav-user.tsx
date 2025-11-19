@@ -84,7 +84,7 @@ export function NavUser({ user, userId, appendUserId }: NavUserProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("userId")
-    router.replace("/login")
+    router.replace("/auth/login")
     setLogoutDialogOpen(false)
   }
 
