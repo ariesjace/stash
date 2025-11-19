@@ -92,21 +92,21 @@ export function AppSidebar({ userId, ...props }: AppSidebarProps) {
     },
     {
       title: "Maintenance",
-      url: appendUserId("/maintenance"),
+      url: appendUserId("/logs/maintenance"),
       icon: Cog,
-      isActive: pathname?.startsWith("/maintenance"),
+      isActive: pathname?.startsWith("/logs/maintenance"),
     },
     {
       title: "Audit Logs",
-      url: appendUserId("/audit"),
+      url: appendUserId("logs/audit"),
       icon: FolderCheck,
-      isActive: pathname?.startsWith("/audit"),
+      isActive: pathname?.startsWith("logs/audit"),
     },
     {
       title: "History Logs",
-      url: appendUserId("/history"),
+      url: appendUserId("/logs/history"),
       icon: Clock,
-      isActive: pathname?.startsWith("/history"),
+      isActive: pathname?.startsWith("/logs/history"),
     },
   ]
 
