@@ -1,83 +1,87 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { useUser } from "@/contexts/UserContext";
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [showOverlay, setShowOverlay] = useState(false)
-  const router = useRouter()
+export default function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const router = useRouter();
   const { setUserId } = useUser();
 
-  // Progress animation overlay
+  // Progress animation
   useEffect(() => {
-    if (!showOverlay) return
+    if (!showOverlay) return;
 
-    let value = 0
+    let value = 0;
     const interval = setInterval(() => {
-      value += 10
-      setProgress(value)
+      value += 10;
+      setProgress(value);
+
       if (value >= 100) {
-        clearInterval(interval)
+        clearInterval(interval);
       }
-    }, 150)
+    }, 150);
 
-    return () => clearInterval(interval)
-  }, [showOverlay])
+    return () => clearInterval(interval);
+  }, [showOverlay]);
 
+  // Handle login
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!email || !password) {
-      toast.error("All fields are required!")
-      return
+      toast.error("All fields are required!");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
       const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: email, Password: password }),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (response.ok && result.userId) {
-        toast.success("Login successful!")
+        toast.success("Login successful!");
 
-        // ✅ Save user info
-        localStorage.setItem("userId", result.userId)
-        if (result.token) localStorage.setItem("token", result.token)
-        localStorage.setItem("userEmail", email)
+        // Save tokens
+        localStorage.setItem("userId", result.userId);
+        if (result.token) localStorage.setItem("token", result.token);
+        localStorage.setItem("userEmail", email);
 
-        // ✅ Update context immediately
-        setUserId(result.userId)
+        // Update context
+        setUserId(result.userId);
 
-        // ✅ Start progress overlay
-        setShowOverlay(true)
+        // Show overlay progress
+        setShowOverlay(true);
 
-        // ✅ Non-blocking activity log
+        // Fire & forget logging
         fetch("/api/log-activity", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -86,111 +90,133 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             status: "login",
             timestamp: new Date().toISOString(),
           }),
-        }).catch(console.error)
+        }).catch(console.error);
 
-        // ✅ Redirect after short delay
+        // Redirect
         setTimeout(() => {
-          router.push(`/dashboard?id=${encodeURIComponent(result.userId)}`)
-        }, 2000)
+          router.push(`/dashboard?id=${encodeURIComponent(result.userId)}`);
+        }, 2000);
       } else {
-        toast.error(result.message || "Invalid credentials.")
+        toast.error(result.message || "Invalid credentials.");
       }
     } catch (error) {
-      console.error("Login error:", error)
-      toast.error("An error occurred while logging in.")
+      console.error("Login error:", error);
+      toast.error("An error occurred while logging in.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className={cn("relative flex flex-col gap-6", className)} {...props}>
-      {/* Overlay Progress */}
+    <div className="flex items-center justify-center min-h-screen relative">
+
+      {/* ------------------------------------ */}
+      {/*           Overlay Progress            */}
+      {/* ------------------------------------ */}
       {showOverlay && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="text-center space-y-4">
-            <h2 className="text-white text-xl font-semibold">Logging you in...</h2>
+            <h2 className="text-white text-xl font-semibold">
+              Logging you in...
+            </h2>
             <Progress value={progress} className="w-[70%] mx-auto" />
           </div>
         </div>
       )}
 
-      {/* Login Card */}
-      <Card className="overflow-hidden">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-4">
-            {/* Logo */}
-            <div className="flex justify-center mb-6">
-              <Image
-                width={100}
-                height={100}
-                src="/stash-logo.png"
-                alt="Stash Logo"
-                className="object-contain"
+      {/* ------------------------------------------------ */}
+      {/*                    LOGIN CARD                    */}
+      {/* ------------------------------------------------ */}
+      <form onSubmit={handleSubmit} className="w-full max-w-md">
+        <Card className="border-none shadow-lg pb-0">
+          {/* HEADER */}
+          <CardHeader className="flex flex-col items-center space-y-1.5 pb-4 pt-6">
+            {/* Replace SVG logo with actual image */}
+            <Image
+              src="/stashminidark.png"
+              width={48}
+              height={48}
+              alt="Stash Logo"
+              className="mb-2"
+            />
+
+            <div className="space-y-0.5 flex flex-col items-center">
+              <h2 className="text-2xl font-semibold text-foreground">
+                Stash ITAMS
+              </h2>
+              <p className="text-muted-foreground">
+                Welcome Back! Use your credentials.
+              </p>
+            </div>
+          </CardHeader>
+
+          {/* FORM FIELDS */}
+          <CardContent className="space-y-6 px-8">
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                disabled={loading}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
-            <FieldGroup>
-              <div className="flex flex-col items-center gap-2 text-center mb-4">
-                <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-muted-foreground">
-                  Login to your Stash Account
-                </p>
-              </div>
-
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </Field>
-
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
+            {/* Password */}
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
+                  className="pr-10"
                   value={password}
+                  disabled={loading}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
-              </Field>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Logging in..." : "Login"}
-              </Button>
+                {/* Show/Hide btn */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  disabled={loading}
+                  className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
 
-              <FieldDescription className="text-center">
-                Don&apos;t have an account?{" "}
-                <Link href="/signup" className="underline hover:text-primary">
-                  Sign up
-                </Link>
-              </FieldDescription>
-            </FieldGroup>
-          </form>
+            {/* Login Button */}
+            <Button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Log In"}
+            </Button>
+          </CardContent>
 
-          {/* Right-side Image */}
-          <div className="bg-muted relative hidden md:block">
-            <img
-              src="/illustration.jpg"
-              alt="Login Background"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness"
-            />
-          </div>
-        </CardContent>
-      </Card>
+          {/* FOOTER */}
+          <CardFooter className="flex justify-center border-t py-4">
+            <p className="text-center text-sm text-muted-foreground">
+              Don&apos;t have an account?{" "}
+              <Link href="/auth/signup" className="text-primary hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </form>
     </div>
-  )
+  );
 }
