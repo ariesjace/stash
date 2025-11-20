@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { AppSidebar } from "@/components/sidebar/app-sidebar"
+import { AppSidebar } from "@/components/sidebar/sidebar-right"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import Breadcrumbs from "@/components/breadcrumbs"
