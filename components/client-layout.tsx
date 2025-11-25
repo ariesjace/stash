@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, Suspense } from "react"
 import { usePathname } from "next/navigation"
 import { AppSidebar } from "@/components/sidebar/sidebar-right"
 import { SiteHeader } from "@/components/site-header"
@@ -33,7 +33,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   if (isAuthPage) return <>{children}</>
 
-  return (
+  return (  
     <SidebarProvider
       className="h-screen"
       style={
@@ -43,6 +43,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         } as React.CSSProperties
       }
     >
+      <Suspense fallback={<div>Loading...</div>}>
       <AppSidebar userId={userId ?? undefined} variant="inset" />
       <SidebarInset className="flex flex-col flex-1 overflow-hidden">
         {showBreadcrumbsInstead ? (
@@ -59,6 +60,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         )}
         <div className="flex-1 h-0 overflow-auto">{children}</div>
       </SidebarInset>
+      </Suspense>
     </SidebarProvider>
   )
 }
